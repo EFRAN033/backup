@@ -20,4 +20,4 @@
   
   <script setup>
   // No se necesita lógica JS por ahora
-  </script>1
+  </script>
