@@ -61,9 +61,9 @@
   <script setup>
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useUserStore } from '@/stores/user'; // Importamos tu store
+  import { useUserStore } from '@/stores/user'; 
   
-  // Estado para el menú móvil
+
   const isMenuOpen = ref(false);
   
   // Instancias de router y store
@@ -72,8 +72,8 @@
   
   // Función de Logout
   const logout = () => {
-    userStore.clearUser(); // Limpia la sesión del store
-    isMenuOpen.value = false; // Cierra el menú móvil
-    router.push('/login'); // Redirige al login
+    userStore.clearUser(); 
+    isMenuOpen.value = false; 
+    router.push('/login'); 
   };
   </script>

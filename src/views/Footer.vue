@@ -52,11 +52,9 @@
   </template>
   
   <script setup>
-  // No se necesita lógica JS para un footer estático
+
   </script>
   
   <style scoped>
-  /* No se necesitan estilos scoped ya que todo se maneja con 
-    clases de utilidad de Tailwind.
-  */
+
   </style>

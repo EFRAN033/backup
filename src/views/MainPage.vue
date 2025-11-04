@@ -17,7 +17,7 @@
   </template>
   
   <script setup>
-  // Aquí solo le dices a Vue qué "bloques" vas a usar
+
   import Header from '@/views/Header.vue';
   import HeroSection from '@/views/HeroSection.vue';
   import Footer from '@/views/Footer.vue';

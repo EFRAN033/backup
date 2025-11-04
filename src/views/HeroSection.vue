@@ -19,5 +19,5 @@
   </template>
   
   <script setup>
-  // No se necesita lógica JS por ahora
+
   </script>
