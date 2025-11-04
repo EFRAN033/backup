@@ -7,7 +7,7 @@
           Explora Nuestra Colección
         </h2>
         <p class="text-lg text-gray-600 mt-4">
-          (Aquí iría el resto de tu contenido, como una lista de libros...)
+          (Aquí iría el resto de tu contenido,como un dashboard de libros, etc.)
         </p>
       </div>
   
