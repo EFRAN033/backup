@@ -7,7 +7,7 @@
             Bienvenido a la Biblioteca Educativa
           </h1>
           <p class="text-lg lg:text-xl leading-relaxed mb-8">
-            Tu fuente de conocimiento y aprendizaje. Explora, lee y crece.
+            Tu fuente de conocimiento y aprendizaje. Explora, lee y crece para todos.
           </p>
           <button class="bg-blue-600 hover:bg-blue-800 text-white text-lg font-semibold px-8 py-4 rounded-md transition-colors duration-300">
             Explorar Libros
