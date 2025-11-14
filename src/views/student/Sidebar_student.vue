@@ -29,14 +29,14 @@
           </RouterLink>
         </li>
         <li>
-          <RouterLink to="/biblioteca" class="nav-link" active-class="active-link">
+          <RouterLink to="/inventory" class="nav-link" active-class="active-link">
             <Library :size="24" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Biblioteca</span>
           </RouterLink>
         </li>
 
         <li>
-          <RouterLink to="/favoritos" class="nav-link" active-class="active-link">
+          <RouterLink to="/favorites" class="nav-link" active-class="active-link">
             <Heart :size="24" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Mis Favoritos</span>
           </RouterLink>
@@ -47,7 +47,7 @@
     <div class="p-4 border-t border-indigo-700/50">
       <ul class="space-y-3">
         <li>
-          <RouterLink to="/perfil" class="nav-link" active-class="active-link">
+          <RouterLink to="/profile" class="nav-link" active-class="active-link">
             <User :size="24" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Mi Perfil</span>
           </RouterLink>
