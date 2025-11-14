@@ -4,11 +4,15 @@ import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 
 // --- 1. IMPORTACIÓN DE VISTAS DE ESTUDIANTE ---
-import MarketStudent from '../views/student/Market_student.vue';
-import ProfileStudent from '../views/student/Profile_student.vue';
-// CAMBIOS A INGLÉS:
-import LibraryStudent from '../views/student/Library_student.vue'; // <-- Nombre en Inglés
-import SavedStudent from '../views/student/Saved_student.vue'; // <-- Nombre en Inglés
+import MarketStudent from '../views/student/Market_student.vue'; // <-- Este está OK
+
+// ¡CORRECCIÓN! Importamos el archivo con el typo en el nombre
+import ProfileStudent from '../views/student/Profile_studen.vue'; 
+
+// ¡ERROR! Estos archivos no existen en tu repo. Debes crearlos
+// o mantener comentadas las líneas de importación y las rutas.
+// import LibraryStudent from '../views/student/Library_student.vue';
+// import SavedStudent from '../views/student/Saved_student.vue';
 // ----------------------------------------------------
 
 const routes = [
@@ -48,14 +52,17 @@ const routes = [
     }
   },
   {
-    path: '/perfil', // Ruta para Profile_student.vue
+    path: '/perfil', // Ruta para Profile_studen.vue
     name: 'perfil',
-    component: ProfileStudent,
+    component: ProfileStudent, // <-- Usamos la variable de la importación corregida
     meta: {
       title: 'Mi Perfil | Biblioteca'
       // requiresAuth: true 
     }
   },
+  
+  /* --- RUTAS COMENTADAS ---
+     Descomenta esto cuando crees los archivos
   {
     path: '/biblioteca', // Ruta para Library_student.vue
     name: 'biblioteca',
@@ -74,7 +81,22 @@ const routes = [
       // requiresAuth: true 
     }
   },
+  */
   // -----------------------------------
+
+  // --- ¡AQUÍ ESTÁ LA NUEVA RUTA AÑADIDA! ---
+  {
+    path: '/libro/:id', // :id es un parámetro dinámico
+    name: 'BookDetail',
+    // Asumiendo que crearás Detail_student.vue dentro de /views/student/
+    component: () => import('../views/student/Detail_student.vue'),
+    props: true, // Esto pasa el :id como "prop" al componente
+    meta: {
+      title: 'Detalle del Libro | Biblioteca'
+      // requiresAuth: true 
+    }
+  },
+  // -----------------------------------------
 
   {
     path: '/:pathMatch(.*)*',
