@@ -11,6 +11,10 @@ module.exports = {
         lobster: ['Lobster', 'cursive'],
       },
       colors: {
+        // --- Colores personalizados añadidos ---
+        'header-bg': '#11095d',
+        'button-dark': '#000037',
+        // -------------------------------------
         brand: {
           primary: '#d7037b',
           light: '#fde9f2',
