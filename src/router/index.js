@@ -3,8 +3,12 @@ import MainPage from '../views/MainPage.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 
-// --- 1. AÑADE LA IMPORTACIÓN PARA TU NUEVA VISTA ---
+// --- 1. IMPORTACIÓN DE VISTAS DE ESTUDIANTE ---
 import MarketStudent from '../views/student/Market_student.vue';
+import ProfileStudent from '../views/student/Profile_student.vue';
+// CAMBIOS A INGLÉS:
+import LibraryStudent from '../views/student/Library_student.vue'; // <-- Nombre en Inglés
+import SavedStudent from '../views/student/Saved_student.vue'; // <-- Nombre en Inglés
 // ----------------------------------------------------
 
 const routes = [
@@ -33,15 +37,40 @@ const routes = [
     }
   },
 
-  // --- 2. AÑADE ESTA NUEVA RUTA AQUÍ ---
-  // Esta es la ruta a la que redirigirá el Login
+  // --- 2. RUTAS DE ESTUDIANTE (PARA EL SIDEBAR) ---
   {
     path: '/market',
     name: 'market',
     component: MarketStudent,
     meta: {
       title: 'Mercado | Biblioteca'
-      // (Más adelante puedes añadir esto para proteger la ruta)
+      // requiresAuth: true 
+    }
+  },
+  {
+    path: '/perfil', // Ruta para Profile_student.vue
+    name: 'perfil',
+    component: ProfileStudent,
+    meta: {
+      title: 'Mi Perfil | Biblioteca'
+      // requiresAuth: true 
+    }
+  },
+  {
+    path: '/biblioteca', // Ruta para Library_student.vue
+    name: 'biblioteca',
+    component: LibraryStudent, // <-- CAMBIO A INGLÉS
+    meta: {
+      title: 'Mi Biblioteca | Biblioteca'
+      // requiresAuth: true 
+    }
+  },
+  {
+    path: '/guardados', // Ruta para Saved_student.vue
+    name: 'guardados',
+    component: SavedStudent, // <-- CAMBIO A INGLÉS
+    meta: {
+      title: 'Mis Guardados | Biblioteca'
       // requiresAuth: true 
     }
   },
