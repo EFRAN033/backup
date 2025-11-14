@@ -4,6 +4,7 @@
     <Sidebar_student 
       :isExpanded="isExpanded" 
       @toggle-sidebar="isExpanded = !isExpanded" 
+      @logout="handleLogout"
     />
 
     <main 
@@ -168,6 +169,8 @@
   
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router' //
+import { useUserStore } from '@/stores/user' //
 // 3. Importar el componente Sidebar
 import Sidebar_student from './Sidebar_student.vue' // (Ajusta la ruta si es necesario)
 
@@ -228,6 +231,17 @@ const myRentals = ref([
     dueDate: '15 de Enero, 2026'
   }
 ])
+
+// --- Lógica de Cierre de Sesión ---
+const router = useRouter()
+const userStore = useUserStore()
+
+// 2. Definir la función que manejará el evento 'logout'
+const handleLogout = () => {
+  // 3. Ejecutar la lógica de cierre de sesión
+  userStore.clearUser() 
+  router.push('/login') // Redirige al login
+}
 
 </script>
   
