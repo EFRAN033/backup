@@ -75,7 +75,39 @@
               + Agregar usuario
             </button>
           </div>
-
+          
+          <nav class="flex items-center gap-4 border-b border-gray-300 mb-6">
+              <button 
+                  @click="activeTab = 'all'" 
+                  :class="['tab-button', { 'active-tab': activeTab === 'all' }]"
+              >
+                  Todos los Usuarios
+              </button>
+              <button 
+                  @click="activeTab = 'estudiante'" 
+                  :class="['tab-button', { 'active-tab': activeTab === 'estudiante' }]"
+              >
+                  Estudiantes
+              </button>
+              <button 
+                  @click="activeTab = 'bibliotecario'" 
+                  :class="['tab-button', { 'active-tab': activeTab === 'bibliotecario' }]"
+              >
+                  Bibliotecarios
+              </button>
+              <button 
+                  @click="activeTab = 'admin'" 
+                  :class="['tab-button', { 'active-tab': activeTab === 'admin' }]"
+              >
+                  Administradores / Revisores
+              </button>
+              <button 
+                  @click="activeTab = 'pending'" 
+                  :class="['tab-button', { 'active-tab-pending': activeTab === 'pending' }]"
+              >
+                  Solicitudes Pendientes ({{ pendingCount }})
+              </button>
+          </nav>
           <div class="overflow-x-auto bg-white shadow-sm rounded-2xl">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50 dark:bg-gray-700">
@@ -90,14 +122,16 @@
               </thead>
               <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
                 
-                <tr v-if="users.length === 0">
-                  <td colspan="6" class="text-center text-gray-500 px-6 py-4">Cargando usuarios o no hay datos.</td>
+                <tr v-if="filteredUsers.length === 0">
+                  <td colspan="6" class="text-center text-gray-500 px-6 py-4">No se encontraron usuarios para la selección actual.</td>
                 </tr>
 
-                <tr v-for="user in users" :key="user.id">
+                <tr v-for="user in filteredUsers" :key="user.id">
                   <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ user.username }}</td>
                   <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</td>
-                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{{ user.rol }}</td>
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                      <span class="font-semibold">{{ user.rol }}</span>
+                  </td>
                   
                   <td class="whitespace-nowrap px-6 py-4 text-sm">
                     <span 
@@ -139,15 +173,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-// Importa el cliente de Axios que configuraste
+import { ref, onMounted, computed } from 'vue'
+// Importa el cliente de Axios (Necesario si usas la API)
 import apiClient from '@/axios' 
-// Opcional: Importa Toast para notificaciones (si usas vue-toastification)
-// import { useToast } from 'vue-toastification' 
 
-// Define un array reactivo para almacenar los usuarios
+// Define el estado para almacenar todos los usuarios y la pestaña activa
 const users = ref([])
-// const toast = useToast()
+const activeTab = ref('all') // Estado inicial: mostrar todos
 
 // --- MOCK DATA (Simula la respuesta del backend) ---
 const mockUsers = [
@@ -156,31 +188,54 @@ const mockUsers = [
   { id: 'uuid-3', username: 'ana_revi', email: 'ana@ejemplo.com', rol: 'revisor', fecha_creacion: '2025-10-20', estado: 'pendiente' },
   { id: 'uuid-4', username: 'juli_est', email: 'juli@ejemplo.com', rol: 'estudiante', fecha_creacion: '2025-10-10', estado: 'activo' },
   { id: 'uuid-5', username: 'superadmin', email: 'admin@ejemplo.com', rol: 'admin', fecha_creacion: '2025-09-01', estado: 'activo' },
+  { id: 'uuid-6', username: 'otro_bibliotecario', email: 'otro@ejemplo.com', rol: 'bibliotecario', fecha_creacion: '2025-10-01', estado: 'activo' },
 ];
+
+// --- PROPIEDADES COMPUTADAS PARA FILTRAR LA VISTA (UX/UI) ---
+
+// 1. Filtra la lista de usuarios basada en la pestaña activa
+const filteredUsers = computed(() => {
+  // Si la pestaña es 'all', retorna todos
+  if (activeTab.value === 'all') {
+      return users.value;
+  }
+  
+  // Si la pestaña es 'pending', retorna roles privilegiados (no estudiantes) que estén pendientes
+  if (activeTab.value === 'pending') {
+      return users.value.filter(user => 
+          user.estado === 'pendiente' && user.rol !== 'estudiante'
+      );
+  }
+
+  // Si la pestaña es 'estudiante', 'bibliotecario' o 'admin', filtra por ese rol
+  return users.value.filter(user => user.rol === activeTab.value);
+});
+
+// 2. Cuenta las solicitudes pendientes para mostrar en la pestaña
+const pendingCount = computed(() => {
+    return users.value.filter(user => 
+        user.estado === 'pendiente' && user.rol !== 'estudiante'
+    ).length;
+});
 
 // --- FUNCIÓN PARA CARGAR USUARIOS ---
 const fetchUsers = async () => {
   try {
-      // Simulación: Si tienes un endpoint real, usa: 
-      // const response = await apiClient.get('/users?role=all');
-      // users.value = response.data;
-
-      // Usamos datos simulados mientras integras el backend
+      // Lógica de producción: usar apiClient.get('/users/all') si tienes el endpoint.
       users.value = mockUsers;
       
   } catch (error) {
       console.error("Error al cargar usuarios:", error);
-      // toast.error("Error al cargar la lista de usuarios.");
   }
 }
 
-// --- LÓGICA PARA ACEPTAR EL REGISTRO (activar el usuario) ---
+// --- LÓGICA PARA ACEPTAR EL REGISTRO (cambiar estado a 'activo') ---
 const acceptUser = async (userId) => {
-  // Si usas el Mock, primero simula la llamada a la API
+  // Simulamos la llamada (Se ejecuta si el ID empieza por 'uuid-')
   if (userId.startsWith('uuid-')) {
       console.log(`Simulando PATCH /users/${userId} con estado: activo`);
       
-      // Simulación de respuesta exitosa de 300ms
+      // Simulación de respuesta exitosa
       await new Promise(resolve => setTimeout(resolve, 300));
       
       // Actualiza el estado en el frontend
@@ -188,26 +243,27 @@ const acceptUser = async (userId) => {
       if (index !== -1) {
           users.value[index].estado = 'activo';
           alert(`✅ Solicitud de ${users.value[index].username} (ID: ${userId}) aceptada.`);
-          // toast.success(`Usuario ${users.value[index].username} aceptado.`);
+
+          // Opcional: Cambiar a la pestaña 'all' para ver el cambio inmediatamente
+          activeTab.value = 'all';
       }
       return;
   }
 
-  // LÓGICA DE PRODUCCIÓN (Descomentar y ajustar cuando el backend esté listo)
+  // LÓGICA DE PRODUCCIÓN (Si usas un backend real)
   /*
   try {
-    const response = await apiClient.patch(`/users/${userId}/accept`); // O el endpoint que tu API use
+    const response = await apiClient.patch(`/users/${userId}/accept`);
 
     if (response.status === 200) {
+      // Actualiza el estado en el arreglo principal 'users'
       const index = users.value.findIndex(u => u.id === userId);
       if (index !== -1) {
         users.value[index].estado = 'activo';
-        // toast.success(`Usuario ${users.value[index].username} aceptado.`);
       }
     }
   } catch (error) {
     console.error("Error al aceptar usuario:", error);
-    // toast.error("Fallo al aceptar la solicitud.");
   }
   */
 }
@@ -217,7 +273,20 @@ onMounted(() => {
   fetchUsers()
 })
 
-// Exportamos los hooks/componentes usados en la plantilla
-import { ref } from 'vue'
-
 </script>
+
+<style scoped>
+/* ESTILOS PARA LAS PESTAÑAS (TABS) */
+.tab-button {
+  @apply flex items-center px-4 py-3 font-semibold text-gray-500 border-b-2 border-transparent -mb-px;
+  @apply transition-colors duration-200 hover:text-indigo-600 hover:border-indigo-300;
+}
+
+.active-tab {
+  @apply text-indigo-700 border-indigo-600;
+}
+
+.active-tab-pending {
+  @apply text-yellow-700 border-yellow-600 bg-yellow-50/50 rounded-t-lg;
+}
+</style>
