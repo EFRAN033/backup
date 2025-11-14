@@ -1,4 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
+// --- CAMBIO 1: IMPORTAMOS EL STORE PARA LA PROTECCIÓN DE RUTAS ---
+import { useUserStore } from '../stores/user'; 
+
 import MainPage from '../views/MainPage.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
@@ -6,14 +9,12 @@ import Register from '../views/Register.vue';
 // --- 1. IMPORTACIÓN DE VISTAS DE ESTUDIANTE ---
 import MarketStudent from '../views/student/Market_student.vue';
 import ProfileStudent from '../views/student/Profile_studen.vue';
-import InventoryStudent from '../views/student/Inventory_student.vue'; // <-- Componente a usar
-// --- NUEVA IMPORTACIÓN ---
+import InventoryStudent from '../views/student/Inventory_student.vue'; 
 import FavoriteStudent from '../views/student/Favorite_student.vue';
 
-// ¡ERROR! Estos archivos no existen en tu repo. Debes crearlos
-// o mantener comentadas las líneas de importación y las rutas.
-// import LibraryStudent from '../views/student/Library_student.vue';
-// import SavedStudent from '../views/student/Saved_student.vue';
+// --- 2. NUEVA IMPORTACIÓN DE VISTA DE ADMINISTRADOR ---
+// Asegúrate de crear este archivo: src/views/admin/Dashboard_admin.vue
+import DashboardAdmin from '../views/admin/Dashboard_admin.vue'; 
 // ----------------------------------------------------
 
 const routes = [
@@ -42,94 +43,69 @@ const routes = [
     }
   },
 
-  // --- 2. RUTAS DE ESTUDIANTE (PARA EL SIDEBAR) ---
+  // --- 3. RUTAS DE ESTUDIANTE (Añadido requiresAuth: true) ---
   {
-    path: '/market',
+    path: '/market', 
     name: 'market',
     component: MarketStudent,
     meta: {
-      title: 'Mercado | Biblioteca'
-      // requiresAuth: true 
+      title: 'Mercado | Biblioteca',
+      requiresAuth: true // Requiere estar logueado
     }
   },
   {
-    path: '/perfil', // Ruta para Profile_studen.vue
+    path: '/perfil', 
     name: 'perfil',
     component: ProfileStudent, 
     meta: {
-      title: 'Mi Perfil | Biblioteca'
-      // requiresAuth: true 
+      title: 'Mi Perfil | Biblioteca',
+      requiresAuth: true
     }
   },
-  
-  // === RUTA CORREGIDA ===
-  // Ahora la ruta '/biblioteca' (del sidebar) apunta
-  // al componente 'InventoryStudent' (tu archivo).
-  {
-    path: '/biblioteca', // <-- CAMBIO: De '/inventory' a '/biblioteca'
-    name: 'biblioteca',   // <-- CAMBIO: De 'inventory' a 'biblioteca'
-    component: InventoryStudent, // El componente que importamos
-    meta: {
-      title: 'Mi Biblioteca | Biblioteca' // <-- CAMBIO: Título actualizado
-      // requiresAuth: true 
-    }
-  },
-  // ======================
-
-  // --- NUEVA RUTA AÑADIDA ---
-  {
-    path: '/favoritos',
-    name: 'favoritos',
-    component: FavoriteStudent,
-    meta: {
-      title: 'Mis Favoritos | Biblioteca'
-      // requiresAuth: true 
-    }
-  },
-  // --------------------------
-
-  /* --- RUTAS COMENTADAS ---
-     Descomenta esto cuando crees los archivos
-  
-  // Esta era la ruta '/biblioteca' original, que apuntaba
-  // a un archivo 'LibraryStudent' que no existe.
-  // La hemos reemplazado por la de arriba.
   {
     path: '/biblioteca', 
     name: 'biblioteca',
-    component: LibraryStudent, 
+    component: InventoryStudent, 
     meta: {
-      title: 'Mi Biblioteca | Biblioteca'
-      // requiresAuth: true 
+      title: 'Mi Biblioteca | Biblioteca',
+      requiresAuth: true
     }
   },
-
   {
-    path: '/guardados', // Ruta para Saved_student.vue
-    name: 'guardados',
-    component: SavedStudent, // <-- CAMBIO A INGLÉS
+    path: '/favoritos', 
+    name: 'favoritos',
+    component: FavoriteStudent,
     meta: {
-      title: 'Mis Guardados | Biblioteca'
-      // requiresAuth: true 
+      title: 'Mis Favoritos | Biblioteca',
+      requiresAuth: true
     }
   },
-  */
-  // -----------------------------------
-
-  // --- ¡AQUÍ ESTÁ LA NUEVA RUTA AÑADIDA! ---
+  
+  // --- 4. RUTA DEL PANEL DE ADMINISTRACIÓN (CLAVE) ---
   {
-    path: '/libro/:id', // :id es un parámetro dinámico
+    path: '/dashboard',
+    name: 'dashboard',
+    component: DashboardAdmin, 
+    meta: {
+      title: 'Panel de Control | Biblioteca',
+      requiresAuth: true,      // Debe estar logueado
+      requiresAdmin: true     // Debe tener rol de Admin (Bibliotecario/Revisor)
+    }
+  },
+  // -------------------------------------------------
+
+  {
+    path: '/libro/:id', 
     name: 'BookDetail',
-    // Asumiendo que crearás Detail_student.vue dentro de /views/student/
     component: () => import('../views/student/Detail_student.vue'),
-    props: true, // Esto pasa el :id como "prop" al componente
+    props: true, 
     meta: {
-      title: 'Detalle del Libro | Biblioteca'
-      // requiresAuth: true 
+      title: 'Detalle del Libro | Biblioteca',
+      requiresAuth: true
     }
   },
-  // -----------------------------------------
-
+  
+  // Ruta de fallback (404)
   {
     path: '/:pathMatch(.*)*',
     redirect: '/'
@@ -143,18 +119,42 @@ const router = createRouter({
     if (savedPosition) {
       return savedPosition;
     } else {
-      return {
-        top: 0,
-        behavior: 'smooth'
-      };
+      return { top: 0 };
     }
   }
 });
 
+// --- 5. LÓGICA DE PROTECCIÓN DE RUTAS (ROUTER GUARD) ---
 router.beforeEach((to, from, next) => {
+  // 1. Actualiza el título de la página
   document.title = to.meta.title || 'Biblioteca Educativa';
-  next(); 
-});
+  
+  // 2. Obtiene el estado del usuario
+  const userStore = useUserStore();
+  const isLoggedIn = userStore.isLoggedIn; // Propiedad que indica si el token existe
+  const userRole = userStore.user?.rol;   // Propiedad que contiene el rol (estudiante, bibliotecario, revisor)
+  
+  // Bloqueo 1: Requiere Autenticación General (Para rutas de estudiante/admin)
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    // Si la ruta requiere login y no hay usuario, redirige
+    return next('/login');
+  } 
 
+  // Bloqueo 2: Requiere Permisos de Administrador (Solo para /dashboard)
+  if (to.meta.requiresAdmin) {
+    // Roles que tienen acceso al panel de control
+    const adminRoles = ['bibliotecario', 'revisor'];
+    
+    // Si la ruta requiere Admin, pero el usuario no tiene el rol correcto
+    if (isLoggedIn && !adminRoles.includes(userRole)) {
+      // Redirige al mercado (ruta de estudiante)
+      console.log(`Acceso denegado. Rol: ${userRole}. Redirigiendo a /market.`);
+      return next('/market'); 
+    }
+  }
+
+  // 3. Permite la navegación (si pasó los filtros anteriores)
+  next();
+});
 
 export default router;
