@@ -37,14 +37,10 @@
         <li>
           <RouterLink to="/guardados" class="nav-link" active-class="active-link">
             <Bookmark :size="24" class="flex-shrink-0" />
-            <span v="isExpanded" class="nav-text">Mis Guardados</span>
+            <span v-if="isExpanded" class="nav-text">Mis Guardados</span>
           </RouterLink>
         </li>
         
-        <li>
-          <RouterLink to="/inventario" class="nav-link" active-class="active-link">
-            <Boxes :size="24" class="flex-shrink-0" /> <span v="isExpanded" class="nav-text">Inventario</span> </RouterLink>
-        </li>
         </ul>
     </nav>
 
@@ -65,8 +61,8 @@ import {
   ShoppingBag, 
   Library, 
   Bookmark, 
-  User,
-  Boxes // <-- 1. IMPORTAR EL NUEVO ÍCONO
+  User
+  // <-- Se eliminó la importación de 'Boxes'
 } from 'lucide-vue-next'
 
 // 1. Definimos la "prop" que el componente espera recibir del padre

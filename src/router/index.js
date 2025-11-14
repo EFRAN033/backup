@@ -4,14 +4,9 @@ import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 
 // --- 1. IMPORTACIÓN DE VISTAS DE ESTUDIANTE ---
-import MarketStudent from '../views/student/Market_student.vue'; // <-- Este está OK
-
-// ¡CORRECCIÓN! Importamos el archivo con el typo en el nombre
+import MarketStudent from '../views/student/Market_student.vue';
 import ProfileStudent from '../views/student/Profile_studen.vue';
-
-// === NUEVA IMPORTACIÓN AÑADIDA ===
-import InventoryStudent from '../views/student/Inventory_student.vue';
-// ==================================
+import InventoryStudent from '../views/student/Inventory_student.vue'; // <-- Componente a usar
 
 // ¡ERROR! Estos archivos no existen en tu repo. Debes crearlos
 // o mantener comentadas las líneas de importación y las rutas.
@@ -58,36 +53,43 @@ const routes = [
   {
     path: '/perfil', // Ruta para Profile_studen.vue
     name: 'perfil',
-    component: ProfileStudent, // <-- Usamos la variable de la importación corregida
+    component: ProfileStudent, 
     meta: {
       title: 'Mi Perfil | Biblioteca'
       // requiresAuth: true 
     }
   },
   
-  // === NUEVA RUTA AÑADIDA ===
+  // === RUTA CORREGIDA ===
+  // Ahora la ruta '/biblioteca' (del sidebar) apunta
+  // al componente 'InventoryStudent' (tu archivo).
   {
-    path: '/inventory', // La ruta que pusimos en Sidebar_student.vue
-    name: 'inventory',
-    component: InventoryStudent, // El componente que acabamos de importar
+    path: '/biblioteca', // <-- CAMBIO: De '/inventory' a '/biblioteca'
+    name: 'biblioteca',   // <-- CAMBIO: De 'inventory' a 'biblioteca'
+    component: InventoryStudent, // El componente que importamos
     meta: {
-      title: 'Mis Alquileres | Biblioteca'
+      title: 'Mi Biblioteca | Biblioteca' // <-- CAMBIO: Título actualizado
       // requiresAuth: true 
     }
   },
-  // ===========================
+  // ======================
 
   /* --- RUTAS COMENTADAS ---
      Descomenta esto cuando crees los archivos
+  
+  // Esta era la ruta '/biblioteca' original, que apuntaba
+  // a un archivo 'LibraryStudent' que no existe.
+  // La hemos reemplazado por la de arriba.
   {
-    path: '/biblioteca', // Ruta para Library_student.vue
+    path: '/biblioteca', 
     name: 'biblioteca',
-    component: LibraryStudent, // <-- CAMBIO A INGLÉS
+    component: LibraryStudent, 
     meta: {
       title: 'Mi Biblioteca | Biblioteca'
       // requiresAuth: true 
     }
   },
+
   {
     path: '/guardados', // Ruta para Saved_student.vue
     name: 'guardados',

@@ -78,11 +78,25 @@
                     </td>
   
                     <td class="px-6 py-4 whitespace-nowrap">
-                      <button class="px-4 py-2 rounded-lg bg-indigo-100 text-indigo-700 text-sm font-semibold hover:bg-indigo-200 transition-colors">
+                      
+                      <button 
+                        v-if="book.status === 'Activo'"
+                        class="px-4 py-2 rounded-lg bg-indigo-100 text-indigo-700 text-sm font-semibold hover:bg-indigo-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        title="Renovar este alquiler"
+                      >
                         Renovar
                       </button>
-                    </td>
-                  </tr>
+                      
+                      <button 
+                        v-else-if="book.status === 'Vencido'"
+                        class="px-4 py-2 rounded-lg bg-red-100 text-red-800 text-sm font-semibold hover:bg-red-200 transition-colors focus:outline-none focus:ring-2 focus:ring-red-300"
+                        title="Gestionar devolución o multa"
+                      >
+                        Gestionar
+                      </button>
+                      
+                      </td>
+                    </tr>
                 </tbody>
               </table>
             </div>
