@@ -1,16 +1,44 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-b from-blue-950 via-purple-900 to-blue-950 flex items-center justify-center p-4">
-      <div class="w-full max-w-2xl">
+    <div class="min-h-screen bg-header-bg flex flex-col items-center justify-center p-4 relative">
+      
+      <div class="absolute top-6 left-6 sm:top-8 sm:left-8 z-10">
+        <RouterLink 
+          to="/"
+          class="flex items-center gap-2 text-white/80 hover:text-white transition-colors duration-200"
+          aria-label="Volver al inicio"
+        >
+          <ArrowLeft :size="20" />
+          <span class="text-sm hidden sm:block">Volver</span>
+        </RouterLink>
+      </div>
+  
+      <div 
+        class="w-full max-w-2xl animate-fade-in-up" 
+        style="animation-delay: 100ms;"
+      >
         <div class="bg-blue-950/50 backdrop-blur-md border border-purple-500/30 rounded-lg p-8 shadow-2xl">
+          
           <div class="text-center mb-8">
-            <div class="flex items-center justify-center gap-2 mb-4">
-              <BookOpen :size="45" class="text-purple-400" />
-              <span class="text-xl font-bold text-white">Registrarse</span>
-            </div>
+            <RouterLink to="/" class="flex items-center justify-center gap-3 text-white/80 hover:text-white transition-colors duration-300 mb-4">
+              <GraduationCap :size="36" class="text-blue-400" />
+              <span class="text-3xl font-bold">LibroHub</span>
+            </RouterLink>
+            <h2 class="text-2xl font-semibold text-white">
+              Crea tu cuenta
+            </h2>
           </div>
   
-          <form @submit.prevent="handleRegister" class="grid grid-cols-2 gap-6">
-            <!-- Nombres -->
+          <form @submit.prevent="handleRegister" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+            <div 
+              v-if="globalError" 
+              id="form-error"
+              aria-live="polite"
+              class="col-span-1 sm:col-span-2 bg-red-500/10 border border-red-500/30 text-red-300 text-sm rounded-lg p-3 text-center animate-fade-in"
+            >
+              {{ globalError }}
+            </div>
+            
             <div>
               <label class="block text-purple-300 text-sm mb-2">Nombres</label>
               <input
@@ -19,10 +47,11 @@
                 placeholder="Juan"
                 class="w-full bg-purple-900/30 border border-purple-500/50 rounded-lg px-4 py-3 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition"
                 required
+                :disabled="loading"
+                aria-describedby="form-error"
               />
             </div>
   
-            <!-- Apellidos -->
             <div>
               <label class="block text-purple-300 text-sm mb-2">Apellidos</label>
               <input
@@ -31,23 +60,25 @@
                 placeholder="Pérez"
                 class="w-full bg-purple-900/30 border border-purple-500/50 rounded-lg px-4 py-3 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition"
                 required
+                :disabled="loading"
+                aria-describedby="form-error"
               />
             </div>
   
-            <!-- Rol -->
             <div>
-              <label class="block text-purple-300 text-sm mb-2">Rol</label>
+              <label class="block text-purple-300 text-sm mb-2">Quiero registrarme como</label>
               <select
                 v-model="formData.rol"
-                @change="formData.password = ''; formData.passwordConfirm = ''"
                 class="w-full bg-purple-900/30 border border-purple-500/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-400 transition"
+                :disabled="loading"
+                aria-describedby="form-error"
               >
-                <option value="Estudiante">Estudiante</option>
-                <option value="Docente">Docente</option>
+                <option value="estudiante">Estudiante</option>
+                <option value="bibliotecario">Bibliotecario</option>
+                <option value="revisor">Revisor</option>
               </select>
             </div>
   
-            <!-- Correo -->
             <div>
               <label class="block text-purple-300 text-sm mb-2">Correo electrónico</label>
               <input
@@ -56,11 +87,12 @@
                 placeholder="tucorreo@gmail.com"
                 class="w-full bg-purple-900/30 border border-purple-500/50 rounded-lg px-4 py-3 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition"
                 required
+                :disabled="loading"
+                aria-describedby="form-error"
               />
             </div>
-  
-            <!-- Contraseña (solo estudiante) -->
-            <template v-if="formData.rol === 'Estudiante'">
+
+            <template v-if="formData.rol === 'estudiante'">
               <div class="relative">
                 <label class="block text-purple-300 text-sm mb-2">Contraseña</label>
                 <input
@@ -69,16 +101,20 @@
                   placeholder="••••••••••"
                   class="w-full bg-purple-900/30 border border-purple-500/50 rounded-lg px-4 py-3 pr-10 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition"
                   required
+                  :class="{ 'border-red-500/70': passwordError }"
+                  :disabled="loading"
+                  aria-describedby="form-error"
                 />
                 <button
                   type="button"
                   @click="showPassword = !showPassword"
                   class="absolute right-3 top-[39px] text-purple-300 hover:text-purple-100 transition"
+                  :disabled="loading"
                 >
                   <component :is="showPassword ? EyeOff : Eye" :size="20" />
                 </button>
               </div>
-  
+
               <div class="relative">
                 <label class="block text-purple-300 text-sm mb-2">Repetir Contraseña</label>
                 <input
@@ -87,35 +123,48 @@
                   placeholder="••••••••••"
                   class="w-full bg-purple-900/30 border border-purple-500/50 rounded-lg px-4 py-3 pr-10 text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition"
                   required
+                  :class="{ 'border-red-500/70': passwordError }"
+                  :disabled="loading"
+                  aria-describedby="form-error"
                 />
                 <button
                   type="button"
                   @click="showPasswordConfirm = !showPasswordConfirm"
                   class="absolute right-3 top-[39px] text-purple-300 hover:text-purple-100 transition"
+                  :disabled="loading"
                 >
                   <component :is="showPasswordConfirm ? EyeOff : Eye" :size="20" />
                 </button>
-  
-                <p v-if="passwordError" class="text-red-400 text-sm mt-2">
-                  {{ passwordError }}
-                </p>
               </div>
+              
+              <p v-if="passwordError" class="col-span-1 sm:col-span-2 text-red-400 text-sm mt-0 -mb-3">
+                {{ passwordError }}
+              </p>
             </template>
+            <div 
+              v-if="formData.rol !== 'estudiante'" 
+              class="col-span-1 sm:col-span-2 bg-blue-500/10 border border-blue-500/30 text-blue-300 text-sm rounded-lg p-3 text-center"
+            >
+              Tu solicitud de registro como '{{ formData.rol }}' será revisada por un administrador.
+            </div>
   
-            <!-- Botón -->
-            <div class="col-span-2">
+            <div class="col-span-1 sm:col-span-2 mt-2">
               <button
                 type="submit"
-                class="w-full bg-white text-purple-900 font-semibold py-3 rounded-lg hover:bg-purple-100 transition flex items-center justify-center gap-2"
+                :disabled="loading"
+                class="w-full bg-white text-purple-900 font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2
+                       hover:bg-purple-100
+                       disabled:bg-purple-200 disabled:text-purple-600 disabled:cursor-not-allowed"
               >
-                <span v-if="formData.rol === 'Estudiante'">→ Registrarse</span>
-                <span v-else>→ Enviar Solicitud</span>
+                <Loader2 v-if="loading" :size="20" class="animate-spin" />
+                <span v-else>
+                  → {{ formData.rol === 'estudiante' ? 'Registrarse' : 'Enviar Solicitud' }}
+                </span>
               </button>
             </div>
   
-            <!-- Enlaces -->
-            <div class="col-span-2 text-center">
-              <p class="text-purple-300 text-sm mt-2">
+            <div class="col-span-1 sm:col-span-2 text-center">
+              <p class="text-purple-300 text-sm mt-3">
                 ¿Ya tienes cuenta?
                 <RouterLink
                   to="/login"
@@ -124,13 +173,6 @@
                   Inicia sesión aquí
                 </RouterLink>
               </p>
-  
-              <RouterLink
-                to="/"
-                class="w-full mt-4 border border-purple-500/50 text-purple-300 hover:text-white hover:border-purple-400 py-3 rounded-lg transition block text-center"
-              >
-                Volver al inicio
-              </RouterLink>
             </div>
           </form>
         </div>
@@ -139,15 +181,16 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue'
+  // =========== CAMBIO 3: Importar 'watch' ===========
+  import { ref, computed, watch } from 'vue'
   import { RouterLink, useRouter } from 'vue-router'
-  import { BookOpen, Eye, EyeOff } from 'lucide-vue-next'
+  import { GraduationCap, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-vue-next'
   
   const router = useRouter()
   const formData = ref({
     nombres: '',
     apellidos: '',
-    rol: 'Estudiante',
+    rol: 'estudiante', // Valor inicial
     correo: '',
     password: '',
     passwordConfirm: ''
@@ -155,36 +198,93 @@
   
   const showPassword = ref(false)
   const showPasswordConfirm = ref(false)
+  const loading = ref(false)
+  const globalError = ref(null)
   
   const passwordError = computed(() => {
-    if (formData.value.rol === 'Estudiante') {
-      if (formData.value.password && formData.value.passwordConfirm) {
-        if (formData.value.password !== formData.value.passwordConfirm) {
-          return 'Las contraseñas no coinciden'
-        }
-      }
+    // Esta lógica solo se evaluará si los campos son visibles (rol === 'estudiante')
+    if (formData.value.password && 
+        formData.value.passwordConfirm &&
+        formData.value.password !== formData.value.passwordConfirm) 
+    {
+        return 'Las contraseñas no coinciden.'
     }
     return ''
   })
+
+  // =========== CAMBIO 3: Limpiar contraseñas si el rol cambia ===========
+  watch(() => formData.value.rol, (newRol) => {
+    if (newRol !== 'estudiante') {
+      formData.value.password = ''
+      formData.value.passwordConfirm = ''
+      globalError.value = null // Limpiar errores (podrían ser de contraseña)
+    }
+  })
   
+  // =========== CAMBIO 2: Lógica de validación actualizada ===========
   const handleRegister = () => {
-    if (formData.value.rol === 'Estudiante') {
-      if (formData.value.password !== formData.value.passwordConfirm) {
-        alert('Las contraseñas no coinciden')
+    globalError.value = null
+  
+    // 1. Validación de campos comunes (para todos)
+    if (!formData.value.nombres || !formData.value.apellidos || !formData.value.correo) {
+      globalError.value = 'Por favor, completa tus nombres, apellidos y correo.'
+      return
+    }
+
+    // 2. Validación de contraseña (SOLO para estudiantes)
+    if (formData.value.rol === 'estudiante') {
+      if (!formData.value.password || !formData.value.passwordConfirm) {
+        globalError.value = 'Por favor, completa todos los campos de contraseña.'
         return
       }
+
       if (formData.value.password.length < 6) {
-        alert('La contraseña debe tener al menos 6 caracteres')
+        globalError.value = 'La contraseña debe tener al menos 6 caracteres.'
+        return
+      }
+      
+      if (passwordError.value) {
+        globalError.value = passwordError.value + ' Por favor, corrígelas.'
         return
       }
     }
+
+    // 3. Simulación de envío
+    loading.value = true 
   
-    console.log('Register:', { ...formData.value })
-  
-    if (formData.value.rol === 'Estudiante') {
-      alert('¡Cuenta creada exitosamente!')
-    } else {
-      alert('¡Solicitud enviada! Espera la confirmación del administrador.')
-    }
+    // Simulación de llamada a API
+    setTimeout(() => {
+      try {
+        console.log('Enviando datos:', formData.value)
+        
+        // LÓGICA DE TU BACKEND:
+        // 1. Recibe los datos (formData.value).
+        
+        if (formData.value.rol === 'estudiante') {
+          // ESTUDIANTE:
+          // 2. Hashea la contraseña (formData.value.password).
+          // 3. const estado = 'activo';
+          // 4. INSERTA en DB (con hash_contrasena, rol, estado)
+          
+          alert('¡Cuenta creada exitosamente! Por favor, inicia sesión.') 
+          router.push('/login')
+
+        } else {
+          // BIBLIOTECARIO / REVISOR:
+          // 2. NO hay contraseña.
+          // 3. const estado = 'pendiente';
+          // 4. INSERTA en DB (sin contraseña, con rol, estado)
+          // 5. (Opcional) Enviar un email al admin.
+          
+          alert('¡Solicitud enviada! Tu cuenta será revisada por un administrador.')
+          router.push('/')
+        }
+
+      } catch (err) {
+        globalError.value = 'Error al procesar la solicitud. Intenta de nuevo.'
+      } finally {
+        loading.value = false
+      }
+    }, 1500)
   }
   </script>
