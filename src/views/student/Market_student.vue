@@ -1,57 +1,10 @@
 <template>
   <div class="flex min-h-screen bg-gray-100">
     
-    <aside 
-      class="fixed top-0 left-0 h-screen flex flex-col bg-indigo-900 text-white transition-all duration-300 ease-in-out z-50"
-      :class="isExpanded ? 'w-64' : 'w-20'"
-    >
-      <div class="flex items-center gap-3 p-5" :class="isExpanded ? 'justify-start' : 'justify-center'">
-        <GraduationCap :size="32" class="text-indigo-300 flex-shrink-0" />
-        <span v-if="isExpanded" class="text-2xl font-bold whitespace-nowrap">LibroHub</span>
-      </div>
-
-      <button 
-        @click="isExpanded = !isExpanded" 
-        class="absolute top-7 -right-4 bg-white text-indigo-900 rounded-full p-1 shadow-lg hover:bg-indigo-100 transition z-50"
-        aria-label="Expandir o colapsar menú"
-      >
-        <ChevronRight 
-          :size="20" 
-          class="transition-transform duration-300" 
-          :class="isExpanded ? 'rotate-180' : ''" 
-        />
-      </button>
-
-      <nav class="flex-grow p-4">
-        <ul class="space-y-3">
-          <li>
-            <RouterLink to="/market" class="nav-link" active-class="active-link">
-              <ShoppingBag :size="24" class="flex-shrink-0" />
-              <span v-if="isExpanded" class="nav-text">Marketplace</span>
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/biblioteca" class="nav-link" active-class="active-link">
-              <Library :size="24" class="flex-shrink-0" />
-              <span v-if="isExpanded" class="nav-text">Biblioteca</span>
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/guardados" class="nav-link" active-class="active-link">
-              <Bookmark :size="24" class="flex-shrink-0" />
-              <span v-if="isExpanded" class="nav-text">Mis Guardados</span>
-            </RouterLink>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="p-4 border-t border-indigo-700/50">
-        <RouterLink to="/perfil" class="nav-link" active-class="active-link">
-          <User :size="24" class="flex-shrink-0" />
-          <span v-if="isExpanded" class="nav-text">Mi Perfil</span>
-        </RouterLink>
-      </div>
-    </aside>
+    <Sidebar 
+      :is-expanded="isExpanded" 
+      @toggle-sidebar="isExpanded = !isExpanded" 
+    />
 
     <main 
       class="flex-1 transition-all duration-300 ease-in-out"
@@ -187,13 +140,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
+// --- IMPORTACIONES DE COMPONENTES ---
+import Sidebar from './Sidebar_student.vue'
+
+// --- IMPORTACIONES DE ICONOS ---
+// Ya no se importan los iconos del sidebar aquí
 import { 
-  GraduationCap, 
-  ChevronRight, 
-  ShoppingBag, 
-  Library, 
-  Bookmark, 
-  User,
   Search,
   FilterX, 
   BookX
@@ -206,6 +158,7 @@ import imgLibro3 from '@/assets/imagenes/libro3.png'
 import imgLibro4 from '@/assets/imagenes/libro4.png'
 
 // --- ESTADO DEL SIDEBAR ---
+// Este estado se mantiene en el padre
 const isExpanded = ref(false)
 
 // --- ESTADO DE MARKETPLACE ---
@@ -308,17 +261,8 @@ const resetFilters = () => {
 </script>
   
 <style scoped>
-/* --- ESTILOS DEL SIDEBAR --- */
-.nav-link {
-  @apply flex items-center gap-4 p-3 rounded-lg text-indigo-200 transition-colors duration-200;
-  @apply hover:bg-indigo-700 hover:text-white;
-}
-.active-link {
-  @apply bg-indigo-600 text-white shadow-md;
-}
-.nav-text {
-  @apply font-semibold whitespace-nowrap;
-}
+/* Los estilos del sidebar se han movido a sidebar.vue
+*/
 
 /* --- ESTILOS DE MARKET (UI FASE 3) --- 
   - Estilos "suaves" y "minimalistas" 

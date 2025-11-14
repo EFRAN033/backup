@@ -7,7 +7,7 @@ import Register from '../views/Register.vue';
 import MarketStudent from '../views/student/Market_student.vue'; // <-- Este está OK
 
 // ¡CORRECCIÓN! Importamos el archivo con el typo en el nombre
-import ProfileStudent from '../views/student/Profile_studen.vue'; 
+import ProfileStudent from '../views/student/Profile_studen.vue';
 
 // === NUEVA IMPORTACIÓN AÑADIDA ===
 import InventoryStudent from '../views/student/Inventory_student.vue';
@@ -136,7 +136,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = to.meta.title || 'Biblioteca Educativa'; 
+  document.title = to.meta.title || 'Biblioteca Educativa';
   next(); 
 });
 
