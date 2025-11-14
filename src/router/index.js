@@ -7,6 +7,8 @@ import Register from '../views/Register.vue';
 import MarketStudent from '../views/student/Market_student.vue';
 import ProfileStudent from '../views/student/Profile_studen.vue';
 import InventoryStudent from '../views/student/Inventory_student.vue'; // <-- Componente a usar
+// --- NUEVA IMPORTACIÓN ---
+import FavoriteStudent from '../views/student/Favorite_student.vue';
 
 // ¡ERROR! Estos archivos no existen en tu repo. Debes crearlos
 // o mantener comentadas las líneas de importación y las rutas.
@@ -73,6 +75,18 @@ const routes = [
     }
   },
   // ======================
+
+  // --- NUEVA RUTA AÑADIDA ---
+  {
+    path: '/favoritos',
+    name: 'favoritos',
+    component: FavoriteStudent,
+    meta: {
+      title: 'Mis Favoritos | Biblioteca'
+      // requiresAuth: true 
+    }
+  },
+  // --------------------------
 
   /* --- RUTAS COMENTADAS ---
      Descomenta esto cuando crees los archivos

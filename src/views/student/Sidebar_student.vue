@@ -9,7 +9,7 @@
     </div>
 
     <button 
-      @click="$emit('toggle-sidebar')" 
+      @click="emit('toggle-sidebar')" 
       class="absolute top-7 -right-4 bg-white text-indigo-900 rounded-full p-1 shadow-lg hover:bg-indigo-100 transition z-50"
       aria-label="Expandir o colapsar menú"
     >
@@ -34,21 +34,34 @@
             <span v-if="isExpanded" class="nav-text">Biblioteca</span>
           </RouterLink>
         </li>
+
         <li>
-          <RouterLink to="/guardados" class="nav-link" active-class="active-link">
-            <Bookmark :size="24" class="flex-shrink-0" />
-            <span v-if="isExpanded" class="nav-text">Mis Guardados</span>
+          <RouterLink to="/favoritos" class="nav-link" active-class="active-link">
+            <Heart :size="24" class="flex-shrink-0" />
+            <span v-if="isExpanded" class="nav-text">Mis Favoritos</span>
           </RouterLink>
         </li>
-        
         </ul>
     </nav>
 
     <div class="p-4 border-t border-indigo-700/50">
-      <RouterLink to="/perfil" class="nav-link" active-class="active-link">
-        <User :size="24" class="flex-shrink-0" />
-        <span v-if="isExpanded" class="nav-text">Mi Perfil</span>
-      </RouterLink>
+      <ul class="space-y-3">
+        <li>
+          <RouterLink to="/perfil" class="nav-link" active-class="active-link">
+            <User :size="24" class="flex-shrink-0" />
+            <span v-if="isExpanded" class="nav-text">Mi Perfil</span>
+          </RouterLink>
+        </li>
+        <li>
+          <button 
+            @click="logout" 
+            class="nav-link w-full text-red-300 hover:bg-red-700 hover:text-white"
+          >
+            <LogOut :size="24" class="flex-shrink-0" />
+            <span v-if="isExpanded" class="nav-text">Cerrar Sesión</span>
+          </button>
+        </li>
+      </ul>
     </div>
   </aside>
 </template>
@@ -60,12 +73,11 @@ import {
   ChevronRight, 
   ShoppingBag, 
   Library, 
-  Bookmark, 
-  User
-  // <-- Se eliminó la importación de 'Boxes'
+  User,
+  Heart,
+  LogOut 
 } from 'lucide-vue-next'
 
-// 1. Definimos la "prop" que el componente espera recibir del padre
 defineProps({
   isExpanded: {
     type: Boolean,
@@ -73,13 +85,18 @@ defineProps({
   }
 })
 
-// 2. Definimos el evento que el componente "emitirá" (enviará al padre)
-defineEmits(['toggle-sidebar'])
+// Solución para la funcionalidad: Declarar el evento 'logout'
+const emit = defineEmits(['toggle-sidebar', 'logout'])
+
+const logout = () => {
+  emit('logout');
+}
 </script>
 
 <style scoped>
 /* --- ESTILOS DEL SIDEBAR --- */
 .nav-link {
+  /* Estas propiedades de p-3 definen el alto, que ahora se aplica correctamente al botón. */
   @apply flex items-center gap-4 p-3 rounded-lg text-indigo-200 transition-colors duration-200;
   @apply hover:bg-indigo-700 hover:text-white;
 }

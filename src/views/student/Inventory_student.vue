@@ -1,9 +1,15 @@
 <template>
     <div class="bg-gray-100 flex min-h-screen">
       
-      <Sidebar_student />
+      <Sidebar_student 
+        :is-expanded="isExpanded" 
+        @toggle-sidebar="isExpanded = !isExpanded" 
+      />
   
-      <div class="flex-1 h-screen overflow-y-auto">
+      <div 
+        class="flex-1 h-screen overflow-y-auto transition-all duration-300 ease-in-out"
+        :class="isExpanded ? 'ml-64' : 'ml-20'"
+      >
         
         <main class="container mx-auto max-w-7xl p-4 md:p-8">
           
@@ -117,6 +123,9 @@
   // Usaremos las mismas imágenes del mock anterior por simplicidad
   import imgLibro1 from '@/assets/imagenes/libro1.png'
   import imgLibro2 from '@/assets/imagenes/libro2.png'
+  
+  // --- CAMBIO 3: Añadir el estado del sidebar ---
+  const isExpanded = ref(false)
   
   // --- ESTADO ---
   const rentedBooks = ref([
