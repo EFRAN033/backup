@@ -24,7 +24,7 @@ push:
 	docker push $(IMAGE)
 	@echo "--- 2. Subida a Docker Hub FINALIZADA ---"
 
-# 3. Se conecta al VPS y actualiza el contenedor
+# 3. Se conecta al VPS y actualiza el contenedorr
 update-vps:
 	@echo "--- 3. Conectando al VPS y actualizando servicio 'frontend' ---"
 	ssh $(VPS_USER)@$(VPS_HOST) "docker-compose -f $(COMPOSE_FILE) pull frontend && docker-compose -f $(COMPOSE_FILE) rm --stop -f frontend && docker-compose -f $(COMPOSE_FILE) up -d"
