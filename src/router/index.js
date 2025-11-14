@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import MainPage from '../views/MainPage.vue';
-// --- Añade estas líneas ---
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
-// ------------------------
+
+// --- 1. AÑADE LA IMPORTACIÓN PARA TU NUEVA VISTA ---
+import MarketStudent from '../views/student/Market_student.vue';
+// ----------------------------------------------------
 
 const routes = [
   {
@@ -14,18 +16,14 @@ const routes = [
       title: 'Inicio | Biblioteca' 
     }
   },
-
   {
     path: '/login',
     name: 'login',
-    // --- Reemplaza el componente temporal por el real ---
     component: Login, 
     meta: {
       title: 'Iniciar Sesión | Biblioteca'
     }
   },
-
-  // --- Añade esta ruta nueva ---
   {
     path: '/register',
     name: 'register',
@@ -34,7 +32,20 @@ const routes = [
       title: 'Registrarse | Biblioteca'
     }
   },
-  // ---------------------------
+
+  // --- 2. AÑADE ESTA NUEVA RUTA AQUÍ ---
+  // Esta es la ruta a la que redirigirá el Login
+  {
+    path: '/market',
+    name: 'market',
+    component: MarketStudent,
+    meta: {
+      title: 'Mercado | Biblioteca'
+      // (Más adelante puedes añadir esto para proteger la ruta)
+      // requiresAuth: true 
+    }
+  },
+  // -----------------------------------
 
   {
     path: '/:pathMatch(.*)*',

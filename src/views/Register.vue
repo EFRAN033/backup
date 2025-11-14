@@ -181,7 +181,6 @@
   </template>
   
   <script setup>
-  // =========== CAMBIO 3: Importar 'watch' ===========
   import { ref, computed, watch } from 'vue'
   import { RouterLink, useRouter } from 'vue-router'
   import { GraduationCap, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-vue-next'
@@ -190,7 +189,7 @@
   const formData = ref({
     nombres: '',
     apellidos: '',
-    rol: 'estudiante', // Valor inicial
+    rol: 'estudiante',
     correo: '',
     password: '',
     passwordConfirm: ''
@@ -201,9 +200,10 @@
   const loading = ref(false)
   const globalError = ref(null)
   
+  // Computada para error de contraseña
   const passwordError = computed(() => {
-    // Esta lógica solo se evaluará si los campos son visibles (rol === 'estudiante')
-    if (formData.value.password && 
+    if (formData.value.rol === 'estudiante' &&
+        formData.value.password && 
         formData.value.passwordConfirm &&
         formData.value.password !== formData.value.passwordConfirm) 
     {
@@ -212,20 +212,20 @@
     return ''
   })
 
-  // =========== CAMBIO 3: Limpiar contraseñas si el rol cambia ===========
+  // Watcher para limpiar contraseñas si el rol cambia
   watch(() => formData.value.rol, (newRol) => {
     if (newRol !== 'estudiante') {
       formData.value.password = ''
       formData.value.passwordConfirm = ''
-      globalError.value = null // Limpiar errores (podrían ser de contraseña)
+      globalError.value = null 
     }
   })
   
-  // =========== CAMBIO 2: Lógica de validación actualizada ===========
-  const handleRegister = () => {
+  // --- LÓGICA DE ENVÍO CON FETCH Y .ENV ---
+  const handleRegister = async () => {
     globalError.value = null
   
-    // 1. Validación de campos comunes (para todos)
+    // 1. Validación de campos comunes
     if (!formData.value.nombres || !formData.value.apellidos || !formData.value.correo) {
       globalError.value = 'Por favor, completa tus nombres, apellidos y correo.'
       return
@@ -237,54 +237,61 @@
         globalError.value = 'Por favor, completa todos los campos de contraseña.'
         return
       }
-
       if (formData.value.password.length < 6) {
         globalError.value = 'La contraseña debe tener al menos 6 caracteres.'
         return
       }
-      
       if (passwordError.value) {
         globalError.value = passwordError.value + ' Por favor, corrígelas.'
         return
       }
     }
 
-    // 3. Simulación de envío
+    // 3. Envío a la API
     loading.value = true 
-  
-    // Simulación de llamada a API
-    setTimeout(() => {
-      try {
-        console.log('Enviando datos:', formData.value)
-        
-        // LÓGICA DE TU BACKEND:
-        // 1. Recibe los datos (formData.value).
-        
-        if (formData.value.rol === 'estudiante') {
-          // ESTUDIANTE:
-          // 2. Hashea la contraseña (formData.value.password).
-          // 3. const estado = 'activo';
-          // 4. INSERTA en DB (con hash_contrasena, rol, estado)
-          
-          alert('¡Cuenta creada exitosamente! Por favor, inicia sesión.') 
-          router.push('/login')
+    
+    // Construimos el payload que espera el DTO de FastAPI
+    const payload = {
+      nombres: formData.value.nombres,
+      apellidos: formData.value.apellidos,
+      correo: formData.value.correo,
+      rol: formData.value.rol,
+      password: formData.value.rol === 'estudiante' ? formData.value.password : null
+    }
 
-        } else {
-          // BIBLIOTECARIO / REVISOR:
-          // 2. NO hay contraseña.
-          // 3. const estado = 'pendiente';
-          // 4. INSERTA en DB (sin contraseña, con rol, estado)
-          // 5. (Opcional) Enviar un email al admin.
-          
-          alert('¡Solicitud enviada! Tu cuenta será revisada por un administrador.')
-          router.push('/')
-        }
+    try {
+      // Usamos la variable de entorno VITE_APP_API_URL
+      const API_URL = import.meta.env.VITE_APP_API_URL;
+      
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
 
-      } catch (err) {
-        globalError.value = 'Error al procesar la solicitud. Intenta de nuevo.'
-      } finally {
-        loading.value = false
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Ocurrió un error en el registro.')
       }
-    }, 1500)
+
+      const result = await response.json()
+      console.log('Respuesta del servidor:', result.mensaje)
+
+      // Lógica de redirección
+      if (formData.value.rol === 'estudiante') {
+        alert('¡Cuenta creada exitosamente! Por favor, inicia sesión.') 
+        router.push('/login')
+      } else {
+        alert('¡Solicitud enviada! Tu cuenta será revisada por un administrador.')
+        router.push('/')
+      }
+
+    } catch (err) {
+      globalError.value = err.message
+    } finally {
+      loading.value = false
+    }
   }
   </script>

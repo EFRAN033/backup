@@ -121,34 +121,89 @@
   const showPassword = ref(false)
   const loading = ref(false)
   const error = ref(null)
+
+  // --- INICIO DE CAMBIOS ---
+
+  /**
+   * Decodifica un JWT (JSON Web Token) para leer su payload.
+   * No verifica la firma, solo lee los datos.
+   * @param {string} token El token JWT
+   * @returns {object | null} El payload decodificado o null si falla.
+   */
+  const decodeJwt = (token) => {
+    try {
+      const base64Url = token.split('.')[1]; // Obtiene el payload
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      console.error("Error al decodificar el JWT:", e);
+      return null;
+    }
+  }
   
-  const handleLogin = () => {
+  const handleLogin = async () => {
     error.value = null
   
-    // Mejora de Usabilidad e Interacción (PDF 2)
-    // Validación de cliente antes de la llamada a la API[cite: 200, 203, 220].
     if (!formData.value.email || !formData.value.password) {
       error.value = 'Por favor, completa todos los campos.'
-      return // Detiene la ejecución
+      return
     }
   
     loading.value = true
   
-    // Simulación de llamada a API
-    setTimeout(() => {
-      try {
-        if (formData.value.email === 'admin@gmail.com' && formData.value.password === 'password') {
-          throw new Error('Correo o contraseña incorrectos.')
-        }
-        
-        console.log('Login Exitoso:', formData.value)
-        router.push('/') 
-  
-      } catch (err) {
-        error.value = err.message
-      } finally {
-        loading.value = false
+    const payload = {
+      email: formData.value.email,
+      password: formData.value.password
+    }
+
+    try {
+      const API_URL = import.meta.env.VITE_APP_API_URL;
+      
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Error al iniciar sesión. Verifica tus credenciales.')
       }
-    }, 1500)
+
+      const data = await response.json() 
+      
+      // 1. Guardar el token
+      localStorage.setItem('user_token', data.access_token)
+      
+      // 2. Decodificar el token para leer el ROL
+      const tokenPayload = decodeJwt(data.access_token)
+
+      // 3. Redirigir basado en el ROL
+      if (tokenPayload && tokenPayload.rol === 'estudiante') {
+        console.log('Login Exitoso (Estudiante), redirigiendo a /market');
+        router.push('/market'); // <-- ¡REDIRECCIÓN A MARKET!
+
+      } else if (tokenPayload && (tokenPayload.rol === 'bibliotecario' || tokenPayload.rol === 'revisor')) {
+        // (A futuro) Redirección para otros roles
+        console.log('Login Exitoso (Admin/Revisor), redirigiendo a /dashboard');
+        router.push('/dashboard'); // (Ejemplo: llévalos a un dashboard admin)
+
+      } else {
+        // Fallback si el rol no se reconoce
+        console.log('Login Exitoso (Rol desconocido), redirigiendo a /');
+        router.push('/') 
+      }
+  
+    } catch (err) {
+      error.value = err.message
+    } finally {
+      loading.value = false
+    }
   }
+  // --- FIN DE CAMBIOS ---
   </script>
