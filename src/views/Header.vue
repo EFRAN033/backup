@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-header-bg text-white shadow-md py-4 px-6 border-b border-white/10">
+  <header class="fixed top-0 left-0 right-0 bg-header-bg text-white shadow-lg py-4 px-6 border-b border-white/10 z-10">
     <div class="container mx-auto flex justify-between items-center">
       
       <router-link 
@@ -72,16 +72,13 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user'; 
-// Importamos el ícono que usamos en el logo
 import { GraduationCap } from 'lucide-vue-next'; 
 
-// Instancias de router y store
 const router = useRouter();
 const userStore = useUserStore();
 
-// Función de Logout (sin cambios)
 const logout = () => {
-  userStore.clearUser(); // Limpia la sesión del store
-  router.push('/login'); // Redirige al login
+  userStore.clearUser(); 
+  router.push('/login'); 
 };
 </script>

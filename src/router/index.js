@@ -1,7 +1,9 @@
-
-
 import { createRouter, createWebHistory } from 'vue-router';
 import MainPage from '../views/MainPage.vue';
+// --- Añade estas líneas ---
+import Login from '../views/Login.vue';
+import Register from '../views/Register.vue';
+// ------------------------
 
 const routes = [
   {
@@ -16,12 +18,23 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-
-    component: { template: '<div>Página de Login</div>' }, 
+    // --- Reemplaza el componente temporal por el real ---
+    component: Login, 
     meta: {
       title: 'Iniciar Sesión | Biblioteca'
     }
   },
+
+  // --- Añade esta ruta nueva ---
+  {
+    path: '/register',
+    name: 'register',
+    component: Register,
+    meta: {
+      title: 'Registrarse | Biblioteca'
+    }
+  },
+  // ---------------------------
 
   {
     path: '/:pathMatch(.*)*',
