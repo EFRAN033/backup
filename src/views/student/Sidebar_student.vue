@@ -4,7 +4,7 @@
     :class="isExpanded ? 'w-64' : 'w-20'"
   >
     <div class="flex items-center gap-3 p-5" :class="isExpanded ? 'justify-start' : 'justify-center'">
-      <GraduationCap :size="32" class="text-indigo-300 flex-shrink-0" />
+      <GraduationCap :size="32" :stroke-width="3" class="text-indigo-300 flex-shrink-0" />
       <span v-if="isExpanded" class="text-2xl font-bold whitespace-nowrap">LibroHub</span>
     </div>
 
@@ -24,20 +24,20 @@
       <ul class="space-y-3">
         <li>
           <RouterLink to="/market" class="nav-link" active-class="active-link">
-            <ShoppingBag :size="24" class="flex-shrink-0" />
+            <ShoppingBag :size="24" :stroke-width="2.5" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Marketplace</span>
           </RouterLink>
         </li>
         <li>
           <RouterLink to="/inventory" class="nav-link" active-class="active-link">
-            <Library :size="24" class="flex-shrink-0" />
+            <Library :size="24" :stroke-width="2.5" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Biblioteca</span>
           </RouterLink>
         </li>
 
         <li>
           <RouterLink to="/favorites" class="nav-link" active-class="active-link">
-            <Heart :size="24" class="flex-shrink-0" />
+            <Heart :size="24" :stroke-width="2.5" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Mis Favoritos</span>
           </RouterLink>
         </li>
@@ -48,7 +48,7 @@
       <ul class="space-y-3">
         <li>
           <RouterLink to="/profile" class="nav-link" active-class="active-link">
-            <User :size="24" class="flex-shrink-0" />
+            <User :size="24" :stroke-width="2.5" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Mi Perfil</span>
           </RouterLink>
         </li>
@@ -57,7 +57,7 @@
             @click="logout" 
             class="nav-link w-full text-red-300 hover:bg-red-700 hover:text-white"
           >
-            <LogOut :size="24" class="flex-shrink-0" />
+            <LogOut :size="24" :stroke-width="2.5" class="flex-shrink-0" />
             <span v-if="isExpanded" class="nav-text">Cerrar Sesión</span>
           </button>
         </li>
@@ -85,10 +85,13 @@ defineProps({
   }
 })
 
-// Solución para la funcionalidad: Declarar el evento 'logout'
+// **IMPORTANTE**: Declarar los eventos que el componente puede emitir, incluyendo 'logout'
 const emit = defineEmits(['toggle-sidebar', 'logout'])
 
 const logout = () => {
+  // El Sidebar solo emite la intención de cerrar sesión. 
+  // La lógica real (limpiar tokens, redirigir) debe manejarse en el componente padre 
+  // que usa este Sidebar escuchando el evento @logout.
   emit('logout');
 }
 </script>
@@ -96,7 +99,6 @@ const logout = () => {
 <style scoped>
 /* --- ESTILOS DEL SIDEBAR --- */
 .nav-link {
-  /* Estas propiedades de p-3 definen el alto, que ahora se aplica correctamente al botón. */
   @apply flex items-center gap-4 p-3 rounded-lg text-indigo-200 transition-colors duration-200;
   @apply hover:bg-indigo-700 hover:text-white;
 }
