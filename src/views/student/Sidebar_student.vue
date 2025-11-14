@@ -39,7 +39,21 @@
             </span>
           </RouterLink>
         </li>
-        
+
+        <li class="relative group">
+          <RouterLink 
+            to="/inventory" 
+            class="nav-link" 
+            active-class="active-link"
+            aria-label="Mis Alquileres"
+          >
+            <Archive :size="24" class="flex-shrink-0" />
+            <span v-show="isExpanded" class="nav-text">Mis Alquileres</span>
+            <span v-show="!isExpanded" class="tooltip">
+              Mis Alquileres
+            </span>
+          </RouterLink>
+        </li>
         <li class="relative group">
           <RouterLink 
             to="/biblioteca" 
@@ -101,14 +115,11 @@ import {
   ShoppingBag, 
   Library, 
   Bookmark, 
-  User 
+  User,
+  Archive // <-- ICONO IMPORTADO
 } from 'lucide-vue-next'
 
 const isExpanded = ref(false)
-
-// He movido v-if a v-show en el texto para una transición más suave,
-// aunque `isExpanded` en <aside> ya controla la visibilidad del contenedor.
-// Si prefieres v-if, los tooltips y aria-labels seguirán funcionando.
 </script>
 
 <style scoped>

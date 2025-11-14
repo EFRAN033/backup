@@ -9,6 +9,10 @@ import MarketStudent from '../views/student/Market_student.vue'; // <-- Este est
 // ¡CORRECCIÓN! Importamos el archivo con el typo en el nombre
 import ProfileStudent from '../views/student/Profile_studen.vue'; 
 
+// === NUEVA IMPORTACIÓN AÑADIDA ===
+import InventoryStudent from '../views/student/Inventory_student.vue';
+// ==================================
+
 // ¡ERROR! Estos archivos no existen en tu repo. Debes crearlos
 // o mantener comentadas las líneas de importación y las rutas.
 // import LibraryStudent from '../views/student/Library_student.vue';
@@ -61,6 +65,18 @@ const routes = [
     }
   },
   
+  // === NUEVA RUTA AÑADIDA ===
+  {
+    path: '/inventory', // La ruta que pusimos en Sidebar_student.vue
+    name: 'inventory',
+    component: InventoryStudent, // El componente que acabamos de importar
+    meta: {
+      title: 'Mis Alquileres | Biblioteca'
+      // requiresAuth: true 
+    }
+  },
+  // ===========================
+
   /* --- RUTAS COMENTADAS ---
      Descomenta esto cuando crees los archivos
   {
