@@ -131,7 +131,7 @@
                         <td colspan="6" class="text-center text-gray-500 px-6 py-4">No hay bibliotecarios activos.</td>
                     </tr>
                     <tr v-for="user in activeBibliotecarios" :key="user.id" class="hover:bg-indigo-50/20 transition">
-                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ user.username }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ user.username || user.nombres }}</td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ user.email }}</td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                             <span class="font-semibold capitalize">{{ user.rol }}</span>
@@ -164,7 +164,7 @@
                         <td colspan="6" class="text-center text-gray-500 px-6 py-4">No hay solicitudes pendientes de bibliotecarios.</td>
                     </tr>
                     <tr v-for="user in pendingBibliotecarios" :key="user.id" class="hover:bg-yellow-50/20 transition">
-                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ user.username }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ user.username || user.nombres }}</td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ user.email }}</td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                             <span class="font-semibold capitalize">{{ user.rol }}</span>
@@ -180,6 +180,7 @@
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ user.fecha_creacion }}</td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm font-medium flex items-center space-x-2">
                             <button
+                              v-if="user.estado === 'pendiente'"
                               @click="acceptUser(user.id)"
                               class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition flex items-center"
                               title="Aceptar la solicitud de registro de este usuario"
@@ -198,7 +199,7 @@
 
                 <template v-else>
                     <tr v-for="user in filteredUsersForTable" :key="user.id" class="hover:bg-indigo-50/20 transition">
-                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ user.username }}</td>
+                        <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ user.username || user.nombres }}</td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ user.email }}</td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                             <span class="font-semibold capitalize">{{ user.rol }}</span>
@@ -244,15 +245,11 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-// IMPORTACIÓN DEL COMPONENTE SidebarAdmin
-import SidebarAdmin from '@/views/admin/Sidebar_admin.vue'
+// Asegúrate de que esta ruta sea correcta para tu proyecto
+import SidebarAdmin from '@/views/admin/Sidebar_admin.vue' 
 
 // --- CONFIGURACIÓN DEL SIDEBAR ---
 const isSidebarExpanded = ref(false) 
-
-// ELIMINADO: const sidebarItems = [...]
-
-// -------------------------------------------------------------------------
 
 // --- ESTADOS DE LA TABLA ---
 const users = ref([])
@@ -261,17 +258,30 @@ const searchQuery = ref('')
 const filterRol = ref('all') 
 const filterEstado = ref('all') 
 
-const mockUsers = [
-  { id: 'uuid-1', username: 'cris7294', email: 'cris@ejemplo.com', rol: 'estudiante', fecha_creacion: '2025-11-31', estado: 'activo' },
-  { id: 'uuid-2', username: 'gus7294', email: 'gus@ejemplo.com', rol: 'bibliotecario', fecha_creacion: '2025-11-15', estado: 'pendiente' },
-  { id: 'uuid-3', username: 'ana_revi', email: 'ana@ejemplo.com', rol: 'revisor', fecha_creacion: '2025-10-20', estado: 'pendiente' },
-  { id: 'uuid-4', username: 'juli_est', email: 'juli@ejemplo.com', rol: 'estudiante', fecha_creacion: '2025-10-10', estado: 'activo' },
-  { id: 'uuid-5', username: 'superadmin', email: 'admin@ejemplo.com', rol: 'admin', fecha_creacion: '2025-09-01', estado: 'activo' },
-  { id: 'uuid-6', username: 'otro_bibliotecario', email: 'otro@ejemplo.com', rol: 'bibliotecario', fecha_creacion: '2025-10-01', estado: 'activo' },
-];
-
+// --- FUNCIÓN DE CARGA DE USUARIOS (Conexión real) ---
 const fetchUsers = async () => {
-  users.value = mockUsers;
+  const authToken = localStorage.getItem('access_token');
+  if (!authToken) {
+    console.error("Token de autenticación no encontrado.");
+    return;
+  }
+  
+  try {
+      // 🚀 CORREGIDO: Usando el endpoint correcto /auth/users
+      const response = await fetch('http://127.0.0.1:8000/auth/users', { 
+          headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      if (response.ok) {
+          users.value = await response.json();
+      } else {
+          const errorData = await response.json();
+          console.error("Error al cargar usuarios:", errorData);
+          users.value = [];
+      }
+  } catch (e) {
+      console.error("Error de red al cargar usuarios:", e);
+      users.value = [];
+  }
 }
 
 // --- LOGIC FUNCTIONS ---
@@ -282,27 +292,52 @@ const setActiveTab = (tab) => {
     filterEstado.value = 'all';
 }
 
+// --- FUNCIÓN DE APROBACIÓN (Conexión real) ---
 const acceptUser = async (userId) => {
-  if (userId.startsWith('uuid-')) {
-      console.log(`Simulando aceptación de usuario ${userId}`);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      const index = users.value.findIndex(u => u.id === userId);
-      if (index !== -1) {
-          users.value[index].estado = 'activo';
-          alert(`Solicitud de ${users.value[index].username} aceptada.`);
-          activeTab.value = 'all'; 
-      }
-      return;
-  }
+    const authToken = localStorage.getItem('access_token'); 
+
+    if (!authToken) {
+        alert("Error de autenticación. Por favor, inicie sesión.");
+        return;
+    }
+    
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/auth/users/${userId}/approve`, {
+            method: 'PATCH', 
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const approvedUser = await response.json(); 
+            
+            // Actualizar la lista local: buscar por ID y cambiar el estado
+            const index = users.value.findIndex(u => u.id === userId);
+            if (index !== -1) {
+                users.value[index].estado = 'activo';
+                // Asume que el nombre está en 'nombres'
+                alert(`Solicitud de ${approvedUser.nombres || approvedUser.email} aceptada.`);
+            }
+        } else {
+            const errorData = await response.json();
+            alert(`Error al aprobar usuario: ${errorData.detail || response.statusText}`);
+        }
+        
+    } catch (e) {
+        console.error("Error de red al aprobar usuario:", e);
+        alert("Error de conexión con el servidor. Asegúrate de que la API esté corriendo.");
+    }
 }
+
 
 // --- PROPIEDADES COMPUTADAS ---
 
-// 1. Conteo de Pendientes (Sólo Admin y Revisor)
+// 1. Conteo de Pendientes (Incluye Bibliotecario, Admin y Revisor)
 const pendingCountOther = computed(() => {
     return users.value.filter(user => 
-        user.estado === 'pendiente' && user.rol !== 'estudiante' && user.rol !== 'bibliotecario'
+        user.estado === 'pendiente' && user.rol !== 'estudiante'
     ).length;
 });
 
@@ -315,14 +350,13 @@ const filteredByTab = computed(() => {
     }
     
     if (tab === 'bibliotecario') {
-        // Devuelve TODOS los bibliotecarios (activos y pendientes)
         return users.value.filter(user => user.rol === 'bibliotecario');
     }
 
     if (tab === 'pending') {
-        // Solicitudes Pendientes (Admin y Revisor)
+        // Solicitudes Pendientes (Bibliotecario, Admin, Revisor)
         return users.value.filter(user => 
-            user.estado === 'pendiente' && user.rol !== 'estudiante' && user.rol !== 'bibliotecario'
+            user.estado === 'pendiente' && user.rol !== 'estudiante'
         );
     }
     
@@ -342,7 +376,8 @@ const filteredUsersForTable = computed(() => {
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
         filteredList = filteredList.filter(user => 
-            user.username.toLowerCase().includes(query) || 
+            (user.username && user.username.toLowerCase().includes(query)) || 
+            (user.nombres && user.nombres.toLowerCase().includes(query)) ||
             user.email.toLowerCase().includes(query)
         );
     }
