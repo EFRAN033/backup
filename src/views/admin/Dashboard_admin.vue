@@ -3,11 +3,14 @@
     
     <SidebarAdmin 
         :expanded="isSidebarExpanded" 
-        :menu-items="sidebarItems"
         @toggle-sidebar="isSidebarExpanded = !isSidebarExpanded"
-    />
+        
+        />
     
-    <div class="flex-1 flex flex-col">
+    <div 
+      class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
+      :class="isSidebarExpanded ? 'ml-64' : 'ml-20'"
+    >
       <header class="h-14 bg-white flex items-center justify-between px-6 border-b">
         <p class="text-sm text-gray-500">
           Gestor / <span class="text-gray-900 font-medium">Usuarios</span>
@@ -244,14 +247,11 @@ import { ref, onMounted, computed } from 'vue'
 // IMPORTACIÓN DEL COMPONENTE SidebarAdmin
 import SidebarAdmin from '@/views/admin/Sidebar_admin.vue'
 
-// --- CONFIGURACIÓN DEL SIDEBAR (Se mueve aquí para ser pasado como prop) ---
+// --- CONFIGURACIÓN DEL SIDEBAR ---
 const isSidebarExpanded = ref(false) 
 
-const sidebarItems = [
-    { label: 'Inicio', active: true, dPath: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-10v10a1 1 0 01-1 1h-3' }, 
-    { label: 'Libros', active: false, dPath: 'M12 6.253v13M3.461 6.253a6.84 6.84 0 00-.51 1.76l-.169.83H12V6.253zM20.539 6.253v13M12 6.253V19M2.5 19h19' },
-    { label: 'Archivos', active: false, dPath: 'M9 12h6m-3-3v6m-4-6h-4a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-8m-12 4h.01' }
-];
+// ELIMINADO: const sidebarItems = [...]
+
 // -------------------------------------------------------------------------
 
 // --- ESTADOS DE LA TABLA ---

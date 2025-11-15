@@ -4,7 +4,7 @@
     <Sidebar 
       :is-expanded="isExpanded" 
       @toggle-sidebar="isExpanded = !isExpanded" 
-    />
+      @logout="handleLogout"  />
 
     <main 
       class="flex-1 transition-all duration-300 ease-in-out"
@@ -139,7 +139,9 @@
   
 <script setup>
 import { ref, computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router' // AÑADIDO: Importar useRouter
+import { useUserStore } from '@/stores/user' // AÑADIDO: Importar useUserStore
+
 // --- IMPORTACIONES DE COMPONENTES ---
 import Sidebar from './Sidebar_student.vue'
 
@@ -258,6 +260,14 @@ const resetFilters = () => {
   filters.value = { ...defaultFilters }
 }
 
+// --- Lógica de Cierre de Sesión (AÑADIDO) ---
+const router = useRouter()
+const userStore = useUserStore()
+
+const handleLogout = () => {
+  userStore.clearUser() 
+  router.push('/login') 
+}
 </script>
   
 <style scoped>
