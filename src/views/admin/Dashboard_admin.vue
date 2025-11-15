@@ -4,8 +4,7 @@
     <SidebarAdmin 
         :expanded="isSidebarExpanded" 
         @toggle-sidebar="isSidebarExpanded = !isSidebarExpanded"
-        
-        />
+        @logout="handleLogout" />
     
     <div 
       class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
@@ -245,11 +244,25 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router' // ⬅️ AÑADIDO: Importar para redirigir
+import { useUserStore } from '@/stores/user' // ⬅️ AÑADIDO: Importar el store de Pinia
+
 // Asegúrate de que esta ruta sea correcta para tu proyecto
 import SidebarAdmin from '@/views/admin/Sidebar_admin.vue' 
 
 // --- CONFIGURACIÓN DEL SIDEBAR ---
 const isSidebarExpanded = ref(false) 
+
+// --- LÓGICA DE CIERRE DE SESIÓN (NUEVO) ---
+const router = useRouter()
+const userStore = useUserStore()
+
+const handleLogout = () => {
+    userStore.clearUser() // Limpia el token y el usuario en Pinia
+    router.push('/login') // Redirige al login
+}
+// ------------------------------------------
+
 
 // --- ESTADOS DE LA TABLA ---
 const users = ref([])
@@ -260,6 +273,7 @@ const filterEstado = ref('all')
 
 // --- FUNCIÓN DE CARGA DE USUARIOS (Conexión real) ---
 const fetchUsers = async () => {
+  // Aseguramos que se use el token guardado en el localStorage (almacenado por `Login.vue`)
   const authToken = localStorage.getItem('access_token');
   if (!authToken) {
     console.error("Token de autenticación no encontrado.");
@@ -267,7 +281,6 @@ const fetchUsers = async () => {
   }
   
   try {
-      // 🚀 CORREGIDO: Usando el endpoint correcto /auth/users
       const response = await fetch('http://127.0.0.1:8000/auth/users', { 
           headers: { 'Authorization': `Bearer ${authToken}` }
       });
