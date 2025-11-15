@@ -86,11 +86,12 @@ defineProps({
     }
 });
 
-// Definición local y autocontenida de los elementos del menú
+// Corregido: Usar la referencia directa al componente (Home, BookOpen, Bot)
+// en lugar de la cadena de texto ('Home', 'BookOpen', 'Bot').
 const sidebarItems = ref([
-    { label: 'Inicio', active: true, iconComponent: 'Home' }, 
-    { label: 'Libros', active: false, iconComponent: 'BookOpen' },
-    { label: 'IA', active: false, iconComponent: 'Bot' } // Ícono actualizado a 'Bot'
+    { label: 'Inicio', active: true, iconComponent: Home }, 
+    { label: 'Libros', active: false, iconComponent: BookOpen },
+    { label: 'IA', active: false, iconComponent: Bot } 
 ]);
 
 defineEmits(['toggle-sidebar', 'navigate', 'logout']);
