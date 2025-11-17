@@ -63,6 +63,7 @@
                       <option value="all">Filtrar por Estado</option>
                       <option value="activo">Activo</option>
                       <option value="pendiente">Pendiente</option>
+                      <option value="inactivo">Inactivo</option>
                   </select>
 
               </div>
@@ -102,7 +103,7 @@
               </button>
           </nav>
 
-          <div class="overflow-x-auto bg-white shadow-lg rounded-2xl">
+          <div class="overflow-x-auto bg-white shadow-lg rounded-2xl relative z-0">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
@@ -150,7 +151,7 @@
                             </button>
                             <button 
                               @click="deleteUser(user.id)"
-                              class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
+                              class="relative z-10 px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
                             >
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
                             </button>
@@ -194,7 +195,7 @@
                             </button>
                             <button 
                               @click="deleteUser(user.id)"
-                              class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
+                              class="relative z-10 px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
                             >
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
                             </button>
@@ -211,12 +212,19 @@
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
                             <span 
-                              class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium"
-                              :class="user.estado === 'activo' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'"
+                              class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium capitalize"
+                              :class="{
+                                'bg-green-100 text-green-800': user.estado === 'activo',
+                                'bg-yellow-100 text-yellow-800': user.estado === 'pendiente',
+                                'bg-gray-100 text-gray-800': user.estado === 'inactivo',
+                                'bg-red-100 text-red-800': user.estado === 'rechazado'
+                              }"
                             >
                               <svg v-if="user.estado === 'activo'" class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                              <svg v-else class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                              {{ user.estado === 'activo' ? 'Activo' : 'Pendiente' }}
+                              <svg v-else-if="user.estado === 'pendiente'" class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                              <svg v-else-if="user.estado === 'inactivo'" class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                              <svg v-else class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                              {{ user.estado }}
                             </span>
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ user.fecha_creacion }}</td>
@@ -235,7 +243,7 @@
                             </button>
                             <button 
                               @click="deleteUser(user.id)"
-                              class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
+                              class="relative z-10 px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
                             >
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
                             </button>
@@ -255,6 +263,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import Swal from 'sweetalert2' // <--- IMPORTANTE: Importamos la librería aquí
 
 import SidebarAdmin from '@/views/admin/Sidebar_admin.vue' 
 
@@ -279,7 +288,7 @@ const searchQuery = ref('')
 const filterRol = ref('all') 
 const filterEstado = ref('all') 
 
-// --- FUNCIÓN DE CARGA DE USUARIOS (Conexión real) ---
+// --- FUNCIÓN DE CARGA DE USUARIOS ---
 const fetchUsers = async () => {
   const authToken = localStorage.getItem('access_token');
   if (!authToken) {
@@ -312,12 +321,12 @@ const setActiveTab = (tab) => {
     filterEstado.value = 'all';
 }
 
-// --- FUNCIÓN DE APROBACIÓN (Conexión real) ---
+// --- FUNCIÓN DE APROBACIÓN (Actualizada con SweetAlert2) ---
 const acceptUser = async (userId) => {
     const authToken = localStorage.getItem('access_token'); 
 
     if (!authToken) {
-        alert("Error de autenticación. Por favor, inicie sesión.");
+        Swal.fire('Error', 'Error de autenticación. Por favor, inicie sesión.', 'error');
         return;
     }
     
@@ -336,28 +345,46 @@ const acceptUser = async (userId) => {
             const index = users.value.findIndex(u => u.id === userId);
             if (index !== -1) {
                 users.value[index].estado = 'activo';
-                alert(`Solicitud de ${approvedUser.nombres || approvedUser.email} aceptada.`);
+                // Alerta de éxito bonita
+                Swal.fire(
+                    '¡Aprobado!',
+                    `Solicitud de ${approvedUser.nombres || approvedUser.email} aceptada.`,
+                    'success'
+                );
             }
         } else {
             const errorData = await response.json();
-            alert(`Error al aprobar usuario: ${errorData.detail || response.statusText}`);
+            Swal.fire('Error', `Error al aprobar usuario: ${errorData.detail || response.statusText}`, 'error');
         }
         
     } catch (e) {
         console.error("Error de red al aprobar usuario:", e);
-        alert("Error de conexión con el servidor. Asegúrate de que la API esté corriendo.");
+        Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
     }
 }
 
-// --- FUNCIÓN DE ELIMINAR USUARIO (NUEVO) ---
+// --- FUNCIÓN DE ELIMINAR USUARIO (Con SweetAlert2 y Borrado Físico) ---
 const deleteUser = async (userId) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar este usuario permanentemente?")) {
+    // Usamos Swal en lugar de window.confirm para evitar bloqueos del navegador
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción eliminará al usuario permanentemente (y sus alquileres/productos) y no se puede deshacer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    // Si el usuario no confirmó (dio click fuera o en cancelar), salimos
+    if (!result.isConfirmed) {
         return;
     }
 
     const authToken = localStorage.getItem('access_token');
     if (!authToken) {
-        alert("Error de autenticación.");
+        Swal.fire('Error', 'Error de autenticación.', 'error');
         return;
     }
 
@@ -370,22 +397,27 @@ const deleteUser = async (userId) => {
         });
 
         if (response.status === 204) {
-            // Eliminado exitoso, actualizamos la lista local
+            // Eliminamos la fila de la lista localmente
             users.value = users.value.filter(u => u.id !== userId);
-            alert("Usuario eliminado exitosamente.");
+            // Alerta de éxito
+            Swal.fire(
+                '¡Eliminado!',
+                'El usuario ha sido eliminado exitosamente.',
+                'success'
+            );
         } else {
-            // Intentamos leer el error
+            // Manejo de errores
             let errorMessage = "No se pudo eliminar el usuario.";
             try {
                 const errorData = await response.json();
                 errorMessage = errorData.detail || errorMessage;
             } catch (e) { }
             
-            alert(`Error: ${errorMessage}`);
+            Swal.fire('Error', errorMessage, 'error');
         }
     } catch (e) {
         console.error("Error de red al eliminar usuario:", e);
-        alert("Error de conexión con el servidor.");
+        Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
     }
 }
 
