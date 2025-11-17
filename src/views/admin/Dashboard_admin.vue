@@ -148,7 +148,10 @@
                             <button class="px-3 py-1 bg-[#4626d0] text-white text-xs rounded-lg hover:bg-[#341caa] transition flex items-center">
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Editar
                             </button>
-                            <button class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center">
+                            <button 
+                              @click="deleteUser(user.id)"
+                              class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
+                            >
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
                             </button>
                         </td>
@@ -189,7 +192,10 @@
                             <button class="px-3 py-1 bg-[#4626d0] text-white text-xs rounded-lg hover:bg-[#341caa] transition flex items-center">
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Editar
                             </button>
-                            <button class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center">
+                            <button 
+                              @click="deleteUser(user.id)"
+                              class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
+                            >
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
                             </button>
                         </td>
@@ -227,7 +233,10 @@
                             <button class="px-3 py-1 bg-[#4626d0] text-white text-xs rounded-lg hover:bg-[#341caa] transition flex items-center">
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Editar
                             </button>
-                            <button class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center">
+                            <button 
+                              @click="deleteUser(user.id)"
+                              class="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition flex items-center"
+                            >
                               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
                             </button>
                         </td>
@@ -244,22 +253,21 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router' // ⬅️ AÑADIDO: Importar para redirigir
-import { useUserStore } from '@/stores/user' // ⬅️ AÑADIDO: Importar el store de Pinia
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
-// Asegúrate de que esta ruta sea correcta para tu proyecto
 import SidebarAdmin from '@/views/admin/Sidebar_admin.vue' 
 
 // --- CONFIGURACIÓN DEL SIDEBAR ---
 const isSidebarExpanded = ref(false) 
 
-// --- LÓGICA DE CIERRE DE SESIÓN (NUEVO) ---
+// --- LÓGICA DE CIERRE DE SESIÓN ---
 const router = useRouter()
 const userStore = useUserStore()
 
 const handleLogout = () => {
-    userStore.clearUser() // Limpia el token y el usuario en Pinia
-    router.push('/login') // Redirige al login
+    userStore.clearUser() 
+    router.push('/login') 
 }
 // ------------------------------------------
 
@@ -273,7 +281,6 @@ const filterEstado = ref('all')
 
 // --- FUNCIÓN DE CARGA DE USUARIOS (Conexión real) ---
 const fetchUsers = async () => {
-  // Aseguramos que se use el token guardado en el localStorage (almacenado por `Login.vue`)
   const authToken = localStorage.getItem('access_token');
   if (!authToken) {
     console.error("Token de autenticación no encontrado.");
@@ -326,11 +333,9 @@ const acceptUser = async (userId) => {
         if (response.ok) {
             const approvedUser = await response.json(); 
             
-            // Actualizar la lista local: buscar por ID y cambiar el estado
             const index = users.value.findIndex(u => u.id === userId);
             if (index !== -1) {
                 users.value[index].estado = 'activo';
-                // Asume que el nombre está en 'nombres'
                 alert(`Solicitud de ${approvedUser.nombres || approvedUser.email} aceptada.`);
             }
         } else {
@@ -344,17 +349,55 @@ const acceptUser = async (userId) => {
     }
 }
 
+// --- FUNCIÓN DE ELIMINAR USUARIO (NUEVO) ---
+const deleteUser = async (userId) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este usuario permanentemente?")) {
+        return;
+    }
+
+    const authToken = localStorage.getItem('access_token');
+    if (!authToken) {
+        alert("Error de autenticación.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/auth/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+
+        if (response.status === 204) {
+            // Eliminado exitoso, actualizamos la lista local
+            users.value = users.value.filter(u => u.id !== userId);
+            alert("Usuario eliminado exitosamente.");
+        } else {
+            // Intentamos leer el error
+            let errorMessage = "No se pudo eliminar el usuario.";
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail || errorMessage;
+            } catch (e) { }
+            
+            alert(`Error: ${errorMessage}`);
+        }
+    } catch (e) {
+        console.error("Error de red al eliminar usuario:", e);
+        alert("Error de conexión con el servidor.");
+    }
+}
+
 
 // --- PROPIEDADES COMPUTADAS ---
 
-// 1. Conteo de Pendientes (Incluye Bibliotecario, Admin y Revisor)
 const pendingCountOther = computed(() => {
     return users.value.filter(user => 
         user.estado === 'pendiente' && user.rol !== 'estudiante'
     ).length;
 });
 
-// 2. Filtro principal por Pestaña
 const filteredByTab = computed(() => {
     const tab = activeTab.value;
     
@@ -367,22 +410,18 @@ const filteredByTab = computed(() => {
     }
 
     if (tab === 'pending') {
-        // Solicitudes Pendientes (Bibliotecario, Admin, Revisor)
         return users.value.filter(user => 
             user.estado === 'pendiente' && user.rol !== 'estudiante'
         );
     }
     
     if (tab === 'privilegiado') {
-        // Administradores y Revisores
         return users.value.filter(user => user.rol === 'admin' || user.rol === 'revisor');
     }
     
-    // Estudiantes
     return users.value.filter(user => user.rol === tab);
 });
 
-// 3. Filtro Final que aplica búsqueda y selectores
 const filteredUsersForTable = computed(() => {
     let filteredList = filteredByTab.value;
 
@@ -406,7 +445,6 @@ const filteredUsersForTable = computed(() => {
     return filteredList;
 });
 
-// 4. Listas específicas para la agrupación en la pestaña 'bibliotecario'
 const activeBibliotecarios = computed(() => {
     const list = activeTab.value === 'bibliotecario' ? filteredUsersForTable.value : [];
     return list.filter(user => user.estado === 'activo');
@@ -425,7 +463,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* ESTILOS PARA LAS PESTAÑAS (TABS) */
 .tab-button {
   @apply flex items-center px-4 py-3 font-semibold text-gray-500 border-b-2 border-transparent -mb-px;
   @apply transition-colors duration-200 hover:text-indigo-600 hover:border-indigo-300;
