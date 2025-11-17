@@ -1,8 +1,9 @@
 <template>
     <div class="min-h-screen flex bg-[#f2f2f2]">
+      
       <SidebarLibrarian />
   
-      <div class="flex-1 flex flex-col">
+      <div class="flex-1 flex flex-col ml-20">
         <header class="h-14 bg-white flex items-center justify-between px-6 border-b">
           <p class="text-sm text-gray-500">
             Gestor / <span class="text-gray-900 font-medium">Libros</span>
@@ -66,7 +67,7 @@
   
   <script setup>
   import { ref, computed } from 'vue'
-  import SidebarLibrarian from './Sidebar_librarian.vue' // Importamos el sidebar
+  import SidebarLibrarian from './Sidebar_librarian.vue'
   import { Bar } from 'vue-chartjs'
   import { 
     Chart as ChartJS, 
@@ -78,7 +79,6 @@
     LinearScale 
   } from 'chart.js'
   
-  // Solo importamos los iconos necesarios para este archivo (Cards)
   import { 
     BookOpen, 
     ShoppingCart

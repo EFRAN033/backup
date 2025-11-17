@@ -1,6 +1,6 @@
 <template>
     <aside 
-      class="fixed top-0 left-0 h-screen flex flex-col bg-[#000037] text-white transition-all duration-300 ease-in-out z-50"
+      class="sticky top-0 h-screen flex flex-col bg-[#000037] text-white transition-all duration-300 ease-in-out z-50"
       :class="isExpanded ? 'w-64' : 'w-20'"
     >
       <div class="flex items-center gap-3 p-5" :class="isExpanded ? 'justify-start' : 'justify-center'">

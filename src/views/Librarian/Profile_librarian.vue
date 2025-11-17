@@ -3,7 +3,7 @@
       
       <Sidebar_librarian />
   
-      <div class="flex-1 flex flex-col">
+      <div class="flex-1 flex flex-col ml-20">
         <header class="h-14 bg-white flex items-center justify-between px-6 border-b">
           <p class="text-sm text-gray-500">
             Gestor / <span class="text-gray-900 font-medium">Perfil</span>
@@ -91,13 +91,7 @@
   
   <script setup>
   import { ref } from 'vue'
-  
-  // 2. Importamos el componente Sidebar.
-  // Asumiendo que Profile_librarian.vue está en la misma carpeta que Sidebar_librarian.vue:
   import Sidebar_librarian from './Sidebar_librarian.vue'
-  
-  // NOTA: He eliminado los imports de 'lucide-vue-next' (Home, BookOpen, etc.)
-  // porque ya no se usan en este archivo, ahora están dentro del Sidebar.
   
   const firstName = ref('Juan')
   const lastName = ref('')
