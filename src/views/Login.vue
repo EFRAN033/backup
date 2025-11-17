@@ -113,13 +113,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
-// Asegúrate de que esta ruta es correcta
 import { useUserStore } from '../stores/user'; 
-
-// Eliminadas las importaciones de componentes que causaban error:
 import { Mail, Lock, Loader2, ArrowLeft, GraduationCap } from 'lucide-vue-next'; 
 
-// Función de utilería simple para decodificar JWT (no realiza validación)
 const decodeJwt = (token) => {
   try {
     const base64Url = token.split('.')[1];
@@ -135,9 +131,7 @@ const decodeJwt = (token) => {
   }
 };
 
-// Asegúrate de que VITE_APP_API_URL está disponible
 const API_URL = import.meta.env.VITE_APP_API_URL;
-
 const router = useRouter();
 const userStore = useUserStore();
 
@@ -146,9 +140,7 @@ const password = ref('');
 const isLoading = ref(false);
 const errorMessage = ref('');
 
-// Simulación de carga de usuario desde token (Ajusta esto si tu store lo hace diferente)
 const loadUserFromToken = (token) => {
-    // Tu store actual no tiene esta función, por lo que la simulamos o la definimos:
     const payload = decodeJwt(token);
     if (payload) {
         userStore.setToken(token);
@@ -191,24 +183,28 @@ const loginUser = async () => {
 
     const data = await response.json() 
     
-    // 1. Guardar el token y cargar datos al store
+    // 1. Guardar token
     loadUserFromToken(data.access_token); 
     
-    // 2. Decodificar el token para leer el ROL
+    // 2. Leer Rol
     const tokenPayload = decodeJwt(data.access_token)
 
-    // 3. Redirigir basado en el ROL (Incluyendo 'admin')
+    // 3. Redirigir
     if (tokenPayload && tokenPayload.rol === 'estudiante') {
-      console.log('Login Exitoso (Estudiante), redirigiendo a /market');
+      console.log('Login Exitoso (Estudiante) -> /market');
       router.push('/market'); 
 
-    } else if (tokenPayload && (tokenPayload.rol === 'admin' || tokenPayload.rol === 'bibliotecario' || tokenPayload.rol === 'revisor')) {
-      console.log('Login Exitoso (Admin/Privilegiado), redirigiendo a /dashboard');
+    } else if (tokenPayload && tokenPayload.rol === 'bibliotecario') {
+      // --- CAMBIO PRINCIPAL AQUÍ ---
+      console.log('Login Exitoso (Bibliotecario) -> /bibliotecario/dashboard');
+      router.push('/bibliotecario/dashboard'); 
+
+    } else if (tokenPayload && (tokenPayload.rol === 'admin' || tokenPayload.rol === 'revisor')) {
+      console.log('Login Exitoso (Admin) -> /dashboard');
       router.push('/dashboard'); 
 
     } else {
-      // Fallback si el rol no se reconoce
-      console.log('Login Exitoso (Rol desconocido), redirigiendo a /');
+      console.log('Rol desconocido -> /');
       router.push('/') 
     }
 
@@ -222,11 +218,7 @@ const loginUser = async () => {
 </script>
 
 <style scoped>
-/* Define el color de fondo para que coincida con el tema */
 .bg-header-bg {
-  background-color: #11095d; /* Usando el color de tu Header.vue */
+  background-color: #11095d; 
 }
-
-/* Puedes eliminar las animaciones si no tienes los keyframes definidos en tailwind.config.js */
-/* Reemplacé las clases personalizadas por las estándar para compatibilidad */
 </style>
