@@ -1,5 +1,6 @@
 <template>
     <div class="min-h-screen flex bg-[#f2f2f2]">
+      
       <SidebarLibrarian />
   
       <div class="flex-1 flex flex-col">
@@ -97,6 +98,6 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue'
+  // He eliminado 'ref' porque no se usaba en el código que me pasaste.
   import SidebarLibrarian from './Sidebar_librarian.vue'
   </script>

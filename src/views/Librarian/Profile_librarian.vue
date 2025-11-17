@@ -1,49 +1,7 @@
 <template>
     <div class="min-h-screen flex bg-[#f2f2f2]">
-      <aside class="w-20 bg-[#000037] flex flex-col items-center py-5 gap-4">
-        <div
-          class="w-11 h-11 rounded-lg bg-white/10 flex items-center justify-center text-white text-lg font-bold"
-        >
-          🎓
-        </div>
-  
-        <button
-          class="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white transition"
-          aria-label="Contraer"
-        >
-          <ChevronLeft :size="20" />
-        </button>
-  
-        <router-link to="/login"
-          class="w-10 h-10 rounded-xl flex items-center justify-center text-white/85 hover:bg-white/10 transition"
-          aria-label="Inicio"
-        >
-          <Home :size="24" />
-        </router-link>
-  
-        <router-link to="/bibliotecario/gestion-libros"
-          class="w-10 h-10 rounded-xl flex items-center justify-center text-white/80 hover:bg-white/10 transition"
-          aria-label="Libros"
-        >
-          <BookOpen :size="24" />
-        </router-link>
-  
-        <router-link to="/bibliotecario/alquileres"
-          class="w-10 h-10 rounded-xl flex items-center justify-center text-white/80 hover:bg-white/10 transition"
-          aria-label="Archivos"
-        >
-          <FileText :size="24" />
-        </router-link>
-  
-        <div class="flex-1"></div>
-  
-        <router-link to="/bibliotecario/profile"
-          class="w-10 h-10 rounded-xl flex items-center justify-center bg-[#4626d0] text-white shadow-md transition"
-          aria-label="Perfil"
-        >
-          <UserCircle :size="24" />
-        </router-link>
-      </aside>
+      
+      <Sidebar_librarian />
   
       <div class="flex-1 flex flex-col">
         <header class="h-14 bg-white flex items-center justify-between px-6 border-b">
@@ -133,15 +91,13 @@
   
   <script setup>
   import { ref } from 'vue'
-  // MODIFICACIÓN: Importamos los iconos directamente de lucide-vue-next
-  // en lugar de usar un componente intermedio que no existía.
-  import { 
-    ChevronLeft, 
-    Home, 
-    BookOpen, 
-    FileText, 
-    UserCircle 
-  } from 'lucide-vue-next'
+  
+  // 2. Importamos el componente Sidebar.
+  // Asumiendo que Profile_librarian.vue está en la misma carpeta que Sidebar_librarian.vue:
+  import Sidebar_librarian from './Sidebar_librarian.vue'
+  
+  // NOTA: He eliminado los imports de 'lucide-vue-next' (Home, BookOpen, etc.)
+  // porque ya no se usan en este archivo, ahora están dentro del Sidebar.
   
   const firstName = ref('Juan')
   const lastName = ref('')
