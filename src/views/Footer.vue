@@ -1,90 +1,68 @@
 <template>
-  <footer class="bg-gray-900 text-gray-400 py-4 px-6">
-    <div class="container mx-auto">
+  <footer class="bg-[#1e1266] text-white border-t border-white/10 pt-12 pb-8 font-sans relative z-10">
+    
+    <div class="container mx-auto px-6 lg:px-8">
       
-      <div class="mb-8">
-        <RouterLink to="/" class="flex items-center gap-3 text-white/80 hover:text-white transition-colors duration-300 w-fit">
-          <GraduationCap :size="30" class="text-blue-400" />
-          <span class="text-2xl font-bold text-white">LibroHub</span>
-        </RouterLink>
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+        
+        <div class="md:col-span-6 lg:col-span-5">
+          <RouterLink to="/" class="flex items-center gap-3 group w-fit mb-4">
+            <div class="w-10 h-10 bg-[#150a40] rounded-lg flex items-center justify-center text-blue-300 group-hover:bg-[#231383] transition-colors">
+               <GraduationCap :size="20" />
+            </div>
+            <span class="text-xl font-bold tracking-tight text-white">LibroHub</span>
+          </RouterLink>
+          
+          <p class="text-blue-100/80 text-sm leading-relaxed mb-6 max-w-sm">
+            Plataforma digital de conocimiento. Democratizando el aprendizaje global.
+          </p>
+          
+          <div class="flex gap-2">
+            <a href="#" aria-label="Facebook" class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-blue-100 hover:bg-[#1877F2] hover:text-white transition-colors">
+              <Facebook :size="16" />
+            </a>
+            <a href="#" aria-label="Twitter" class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-blue-100 hover:bg-[#1DA1F2] hover:text-white transition-colors">
+              <Twitter :size="16" />
+            </a>
+            <a href="#" aria-label="Instagram" class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-blue-100 hover:bg-[#E1306C] hover:text-white transition-colors">
+              <Instagram :size="16" />
+            </a>
+          </div>
+        </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-        
-        <div>
-          <h3 class="text-sm font-semibold text-gray-200 uppercase tracking-wider mb-4">Navegación</h3>
+        <div class="md:col-span-3 lg:col-span-3">
+          <h3 class="font-bold text-white mb-3 text-sm uppercase tracking-wider">Legal</h3>
           <ul class="space-y-2">
-            <li><RouterLink to="/" class="hover:text-white transition-colors duration-300">Inicio</RouterLink></li>
-            <li><RouterLink to="/explore" class="hover:text-white transition-colors duration-300">Explorar Libros</RouterLink></li>
-            <li><RouterLink to="/about" class="hover:text-white transition-colors duration-300">Nosotros</RouterLink></li>
-            <li><RouterLink to="/contact" class="hover:text-white transition-colors duration-300">Contacto</RouterLink></li>
+            <li><RouterLink to="/privacy" class="text-blue-200/70 hover:text-white transition-colors text-sm">Privacidad</RouterLink></li>
+            <li><RouterLink to="/terms" class="text-blue-200/70 hover:text-white transition-colors text-sm">Términos</RouterLink></li>
+            <li><RouterLink to="/cookies" class="text-blue-200/70 hover:text-white transition-colors text-sm">Cookies</RouterLink></li>
           </ul>
         </div>
-        
-        <div>
-          <h3 class="text-sm font-semibold text-gray-200 uppercase tracking-wider mb-4">Legal</h3>
+
+         <div class="md:col-span-3 lg:col-span-4">
+          <h3 class="font-bold text-white mb-3 text-sm uppercase tracking-wider">Contacto</h3>
           <ul class="space-y-2">
-            <li><RouterLink to="/privacy" class="hover:text-white transition-colors duration-300">Política de Privacidad</RouterLink></li>
-            <li><RouterLink to="/terms" class="hover:text-white transition-colors duration-300">Términos de Uso</RouterLink></li>
-            <li><RouterLink to="/cookies" class="hover:text-white transition-colors duration-300">Política de Cookies</RouterLink></li>
-          </ul>
-        </div>
-        
-        <div>
-          <h3 class="text-sm font-semibold text-gray-200 uppercase tracking-wider mb-4">Contacto</h3>
-          <ul class="space-y-2">
-            <li>
-              <a 
-                href="https://maps.google.com/?q=Av.+Principal+123+Lima+Perú" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="hover:text-white transition-colors duration-300"
-              >
-                Av. Principal 123<br>Lima, Perú
-              </a>
+            <li class="flex items-center gap-2 text-sm text-blue-200/70 hover:text-white transition-colors">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+              <a href="mailto:info@librohub.com">info@librohub.com</a>
             </li>
-            <li>
-              <a 
-                href="mailto:info@librohub.com" 
-                class="hover:text-white transition-colors duration-300"
-              >
-                info@librohub.com
-              </a>
+            <li class="flex items-center gap-2 text-sm text-blue-200/70">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+              <span>Lima, Perú</span>
             </li>
           </ul>
         </div>
         
       </div>
 
-      <hr class="border-gray-700 my-8" />
-
-      <div class="flex flex-col-reverse sm:flex-row items-center justify-between text-sm">
-        <p class="text-gray-400 mt-4 sm:mt-0">
-          © 2025 LibroHub. Todos los derechos reservados.
+      <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-blue-200/40 text-xs text-center md:text-left">
+          © 2025 LibroHub Inc.
         </p>
         
-        <div class="flex space-x-4">
-          <a
-            href="#"
-            aria-label="Facebook"
-            class="text-gray-400 hover:text-white transition-colors duration-300"
-          >
-            <Facebook class="w-6 h-6" />
-          </a>
-          <a
-            href="#"
-            aria-label="Twitter"
-            class="text-gray-400 hover:text-white transition-colors duration-300"
-          >
-            <Twitter class="w-6 h-6" />
-          </a>
-          <a
-            href="#"
-            aria-label="Instagram"
-            class="text-gray-400 hover:text-white transition-colors duration-300"
-          >
-            <Instagram class="w-6 h-6" />
-          </a>
+        <div class="flex gap-6">
+            <span class="text-blue-200/40 text-xs hover:text-white cursor-pointer transition-colors">Ayuda</span>
+            <span class="text-blue-200/40 text-xs hover:text-white cursor-pointer transition-colors">Estado</span>
         </div>
       </div>
 

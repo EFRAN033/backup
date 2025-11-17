@@ -1,71 +1,75 @@
 <template>
-  <header class="fixed top-0 left-0 right-0 bg-header-bg text-white shadow-lg border-b border-white/10 z-10">
+  <header class="sticky top-0 left-0 right-0 bg-header-bg text-white shadow-lg border-b border-white/10 z-50 transition-all duration-300">
     
-    <div class="container mx-auto flex items-center h-16 px-6 relative">
+    <div class="container mx-auto flex items-center justify-between h-16 px-6">
       
       <router-link 
         to="/" 
-        aria-label="LibroHub - Volver al inicio"
-        class="group flex items-center gap-3 text-2xl font-bold text-white transition-opacity duration-200 hover:opacity-80
-               absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2"
+        aria-label="LibroHub - Ir al inicio"
+        class="group flex items-center gap-3 text-2xl font-bold text-white transition-opacity duration-200 hover:opacity-90"
       >
         <GraduationCap 
-          :size="30" 
-          class="text-blue-400 transition-transform duration-300 group-hover:rotate-[-12deg]" 
+          :size="32" 
+          class="text-blue-400 transition-transform duration-300 group-hover:rotate-[-12deg] group-hover:scale-110" 
         />
-        <span>LibroHub</span>
+        <span class="tracking-wide">LibroHub</span>
       </router-link>
 
-      <nav class="flex items-center ml-auto" aria-label="Autenticación de usuario">
+      <nav class="flex items-center gap-4" aria-label="Menú principal">
         
-        <div class="hidden md:flex space-x-4 items-center">
-          <div v-if="!userStore.isLoggedIn" class="flex space-x-4">
+        <div class="hidden md:flex items-center gap-3">
+          <div v-if="!userStore.isLoggedIn" class="flex items-center gap-3">
+            
             <router-link 
               to="/login" 
-              class="bg-button-dark text-white font-medium px-5 py-2.5 rounded-lg shadow-lg transform-gpu transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 active:shadow-none active:translate-y-px"
+              class="text-white/90 font-medium px-5 py-2.5 rounded-lg border border-transparent 
+                     hover:bg-white/10 hover:border-white/20 transition-all duration-200"
             >
               Iniciar Sesión
             </router-link>
             
             <router-link 
               to="/register" 
-              class="bg-button-dark text-white font-medium px-5 py-2.5 rounded-lg shadow-lg transform-gpu transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 active:shadow-none active:translate-y-px"
+              class="bg-button-dark text-white font-medium px-5 py-2.5 rounded-lg shadow-md 
+                     transform transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0"
             >
               Registrarse
             </router-link>
           </div>
           
-          <div v-else>
+          <div v-else class="flex items-center gap-4">
+            <span class="text-sm text-white/80 font-light">Bienvenido</span>
             <button 
               @click="logout" 
-              class="text-red-400 font-medium px-5 py-2.5 rounded-lg border border-red-400/75 transform-gpu transition-all duration-200 hover:bg-red-500/10 hover:text-red-300 active:translate-y-px"
+              class="text-red-400 font-medium px-4 py-2 rounded-lg border border-red-400/30 
+                     hover:bg-red-400/10 hover:border-red-400/60 transition-all duration-200"
             >
               Cerrar Sesión
             </button>
           </div>
         </div>
 
-        <div class="md:hidden">
-          <div v-if="!userStore.isLoggedIn" class="flex space-x-2">
+        <div class="md:hidden flex items-center">
+          <div v-if="!userStore.isLoggedIn" class="flex items-center gap-2">
             <router-link 
               to="/login" 
-              class="bg-button-dark text-white font-medium px-3 py-1.5 rounded-lg text-sm shadow-md transform-gpu transition-all active:shadow-none active:translate-y-px"
+              class="text-sm font-medium text-white/80 px-3 py-2"
             >
-              Iniciar Sesión
+              Entrar
             </router-link>
             <router-link 
               to="/register" 
-              class="bg-button-dark text-white font-medium px-3 py-1.5 rounded-lg text-sm shadow-md transform-gpu transition-all active:shadow-none active:translate-y-px"
+              class="bg-button-dark text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm"
             >
-              Registrarse
+              Registro
             </router-link>
           </div>
           <div v-else>
             <button 
               @click="logout" 
-              class="text-red-400 font-medium px-3 py-1.5 rounded-lg border border-red-400/75 text-sm transition-colors"
+              class="text-red-400 text-xs font-medium border border-red-400/30 px-3 py-1.5 rounded-lg"
             >
-              Cerrar Sesión
+              Salir
             </button>
           </div>
         </div>
@@ -76,9 +80,7 @@
 </template>
 
 <script setup>
-// El script no necesita cambios
 import { useRouter } from 'vue-router';
-// Asumo que tu store está en @/stores/user, ajústalo si es necesario
 import { useUserStore } from '@/stores/user'; 
 import { GraduationCap } from 'lucide-vue-next'; 
 
