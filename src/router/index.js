@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useUserStore } from '../stores/user'; 
 
+// --- VISTAS GENERALES ---
 import MainPage from '../views/MainPage.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
@@ -10,6 +11,7 @@ import MarketStudent from '../views/student/Market_student.vue';
 import ProfileStudent from '../views/student/Profile_studen.vue';
 import InventoryStudent from '../views/student/Inventory_student.vue'; 
 import FavoriteStudent from '../views/student/Favorite_student.vue';
+import DetailStudent from '../views/student/Detail_student.vue'; // Importación directa o lazy loading abajo
 
 // --- 2. IMPORTACIÓN DE VISTAS DE ADMINISTRADOR ---
 import DashboardAdmin from '../views/admin/Dashboard_admin.vue'; 
@@ -21,6 +23,7 @@ import RentalsLibrarian from '../views/Librarian/Rentals_librarian.vue';
 import ProfileLibrarian from '../views/Librarian/Profile_librarian.vue';
 
 const routes = [
+  // --- RUTAS PÚBLICAS ---
   {
     path: '/',
     name: 'home',
@@ -65,6 +68,14 @@ const routes = [
     component: FavoriteStudent,
     meta: { title: 'Mis Favoritos | Biblioteca', requiresAuth: true }
   },
+  // Detalle de libro (Lazy loading opcional mantenido como en tu ejemplo)
+  {
+    path: '/libro/:id', 
+    name: 'BookDetail',
+    component: () => import('../views/student/Detail_student.vue'),
+    props: true, 
+    meta: { title: 'Detalle del Libro | Biblioteca' }
+  },
   
   // --- RUTA DE ADMINISTRADOR ---
   {
@@ -79,9 +90,10 @@ const routes = [
   },
 
   // --- RUTAS DE BIBLIOTECARIO ---
+  // NOTA: Los 'name' coinciden con los usados en router.push() del Dashboard
   {
     path: '/bibliotecario/dashboard',
-    name: 'librarian-dashboard',
+    name: 'Dashboard_librarian',
     component: DashboardLibrarian,
     meta: { 
       title: 'Panel | Bibliotecario', 
@@ -91,32 +103,24 @@ const routes = [
   },
   {
     path: '/bibliotecario/gestion-libros',
-    name: 'librarian-books',
+    name: 'BookManagement_librarian',
     component: BookManagementLibrarian,
     meta: { title: 'Gestión Libros | Bibliotecario', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/bibliotecario/alquileres',
-    name: 'librarian-rentals',
+    name: 'Rentals_librarian', // Coincide con goToRentals()
     component: RentalsLibrarian,
     meta: { title: 'Alquileres | Bibliotecario', requiresAuth: true, requiresAdmin: true }
   },
   {
-    path: '/bibliotecario/profile',
-    name: 'librarian-profile',
+    path: '/bibliotecario/perfil',
+    name: 'Profile_librarian', // Coincide con goToProfile()
     component: ProfileLibrarian,
     meta: { title: 'Perfil | Bibliotecario', requiresAuth: true, requiresAdmin: true }
   },
 
-  // --- DETALLE DE LIBRO ---
-  {
-    path: '/libro/:id', 
-    name: 'BookDetail',
-    component: () => import('../views/student/Detail_student.vue'),
-    props: true, 
-    meta: { title: 'Detalle del Libro | Biblioteca' }
-  },
-
+  // --- CATCH ALL (404) ---
   {
     path: '/:pathMatch(.*)*',
     redirect: '/'
@@ -127,6 +131,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior(to, from, savedPosition) {
+    // Mantiene la posición del scroll al navegar atrás, o sube arriba al navegar adelante
     if (savedPosition) {
       return savedPosition;
     } else {
@@ -135,29 +140,33 @@ const router = createRouter({
   }
 });
 
-// --- PROTECCIÓN DE RUTAS ---
+// --- PROTECCIÓN DE RUTAS (GLOBAL GUARDS) ---
 router.beforeEach((to, from, next) => {
+  // 1. Actualizar el título de la página
   document.title = to.meta.title || 'Biblioteca Educativa';
   
   const userStore = useUserStore();
+  
+  // Verificamos autenticación desde el store (Pinia)
   const isLoggedIn = userStore.isLoggedIn; 
   const userRole = userStore.user?.rol;   
   
-  // 1. Si requiere auth y no está logueado -> Login
+  // 2. Si la ruta requiere auth y el usuario NO está logueado -> Redirigir a Login
   if (to.meta.requiresAuth && !isLoggedIn) {
-    return next('/login');
+    return next({ name: 'login' });
   } 
 
-  // 2. Si requiere permisos "Privilegiados" (Admin/Bibliotecario/Revisor)
+  // 3. Si la ruta requiere permisos de Admin (o roles privilegiados)
   if (to.meta.requiresAdmin) {
     const privilegedRoles = ['admin', 'bibliotecario', 'revisor'];
     
-    // Si el usuario NO tiene uno de estos roles, lo mandamos al market (estudiante)
+    // Si está logueado pero NO tiene el rol adecuado, redirigir al home o market
     if (isLoggedIn && !privilegedRoles.includes(userRole)) {
-      return next('/market'); 
+      return next({ name: 'market' }); // O 'home'
     }
   }
   
+  // 4. Permitir navegación
   next();
 });
 

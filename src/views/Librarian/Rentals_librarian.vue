@@ -3,7 +3,7 @@
       
       <SidebarLibrarian />
   
-      <div class="flex-1 flex flex-col ml-20">
+      <div class="flex-1 flex flex-col transition-all duration-300">
         <header class="h-14 bg-white flex items-center justify-between px-6 border-b">
           <p class="text-sm text-gray-500">
             Gestor / <span class="text-gray-900 font-medium">Alquileres</span>
@@ -98,6 +98,5 @@
   </template>
   
   <script setup>
-  // Ya no necesitas importar 'ref' ni los iconos manualmente
   import SidebarLibrarian from './Sidebar_librarian.vue'
   </script>
