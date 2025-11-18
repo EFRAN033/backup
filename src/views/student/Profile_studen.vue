@@ -14,14 +14,21 @@
       
       <header class="bg-white shadow-sm p-6 md:p-8">
         <div class="flex flex-col sm:flex-row items-center gap-6 max-w-4xl mx-auto">
-          <div class="flex-shrink-0 w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-bold">
+          <div class="flex-shrink-0 w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white text-4xl font-bold uppercase">
             {{ user.initials }}
           </div>
+          
           <div class="flex-grow text-center sm:text-left">
-            <h1 class="text-3xl font-bold text-gray-900">{{ user.name }}</h1>
-            <p class="text-gray-600 text-lg mt-1">{{ user.university }}</p>
+            <h1 class="text-3xl font-bold text-gray-900 capitalize">{{ user.name }}</h1>
+            
+            <div class="flex items-center justify-center sm:justify-start gap-2 mt-1 text-gray-600">
+              <span class="font-semibold text-indigo-600">DNI:</span>
+              <span class="text-lg">{{ user.dni || 'No registrado' }}</span>
+            </div>
+            
             <p class="text-gray-500 text-sm mt-1">{{ user.email }}</p>
           </div>
+          
           <div class="flex-shrink-0">
             <button 
               @click="activeTab = 'configuracion'"
@@ -38,21 +45,23 @@
         
         <nav class="flex border-b border-gray-300 mb-6" role="tablist">
           <button 
-            @click="activeTab = 'publicaciones'" 
-            :class="['tab-button', { 'active-tab': activeTab === 'publicaciones' }]"
+            @click="activeTab = 'reservas'" 
+            :class="['tab-button', { 'active-tab': activeTab === 'reservas' }]"
             role="tab"
           >
-            <BookOpen :size="18" />
-            <span>Mis Publicaciones ({{ myBooks.length }})</span>
+            <Clock :size="18" />
+            <span>Mis Reservas ({{ myReservations.length }})</span>
           </button>
+
           <button 
             @click="activeTab = 'prestamos'" 
             :class="['tab-button', { 'active-tab': activeTab === 'prestamos' }]"
             role="tab"
           >
             <BookMarked :size="18" />
-            <span>Mis Préstamos ({{ myRentals.length }})</span>
+            <span>Préstamos Activos ({{ myRentals.length }})</span>
           </button>
+
           <button 
             @click="activeTab = 'configuracion'" 
             :class="['tab-button', { 'active-tab': activeTab === 'configuracion' }]"
@@ -65,49 +74,68 @@
 
         <section>
           
-          <div v-if="activeTab === 'publicaciones'" class="space-y-4">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Mis Libros en Venta/Préstamo</h2>
-            <div v-if="myBooks.length > 0" class="space-y-4">
+          <div v-if="activeTab === 'reservas'" class="space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Libros Reservados (Por Recoger)</h2>
+            <div v-if="myReservations.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div 
-                v-for="book in myBooks" :key="book.id"
-                class="bg-white p-4 rounded-lg shadow-sm flex items-center gap-4"
+                v-for="reserva in myReservations" :key="reserva.id"
+                class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg flex flex-col sm:flex-row"
               >
-                <img :src="book.imgUrl" :alt="book.title" class="w-16 h-20 object-contain bg-gray-100 rounded">
-                <div class="flex-grow">
-                  <h3 class="font-semibold text-gray-900">{{ book.title }}</h3>
-                  <p class="text-sm text-gray-600">
-                    <span class.="font-medium">S/ {{ book.price.toFixed(2) }}</span> - 
-                    <span :class="book.available > 0 ? 'text-green-700' : 'text-red-700'">
-                      {{ book.available > 0 ? `Disponibles: ${book.available}` : 'Prestado' }}
+                <div class="relative w-full sm:w-1/3 flex-shrink-0">
+                    <img :src="reserva.imgUrl" :alt="reserva.title" class="w-full h-48 sm:h-full object-cover rounded-t-lg sm:rounded-l-lg sm:rounded-t-none"/>
+                    <span class="absolute top-2 left-2 px-3 py-1 bg-yellow-500 text-white text-xs font-bold rounded-full shadow-md">
+                        Reservado
                     </span>
-                  </p>
                 </div>
-                <button class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300">
-                  Administrar
-                </button>
+                <div class="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-1">{{ reserva.title }}</h3>
+                        <p class="text-sm text-gray-600">Autor: {{ reserva.author }}</p>
+                        <p class="text-sm text-gray-700 mt-2">
+                            Recoger antes del: <span class="font-semibold text-yellow-700">{{ reserva.pickupDeadline }}</span>
+                        </p>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button class="px-4 py-2 text-sm font-semibold text-red-600 bg-red-100 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            Cancelar Reserva
+                        </button>
+                    </div>
+                </div>
               </div>
             </div>
-            <p v-else class="text-gray-500">No tienes ningún libro publicado.</p>
+            <p v-else class="text-gray-500 italic p-4 bg-white rounded-lg shadow-sm">No tienes ninguna reserva pendiente.</p>
           </div>
           
           <div v-if="activeTab === 'prestamos'" class="space-y-4">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Mis Libros Prestados</h2>
-            <div v-if="myRentals.length > 0" class="space-y-4">
+            <div v-if="myRentals.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div 
                 v-for="book in myRentals" :key="book.id"
-                class="bg-white p-4 rounded-lg shadow-sm flex items-center gap-4"
+                class="bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg flex flex-col sm:flex-row"
               >
-                <img :src="book.imgUrl" :alt="book.title" class="w-16 h-20 object-contain bg-gray-100 rounded">
-                <div class="flex-grow">
-                  <h3 class="font-semibold text-gray-900">{{ book.title }}</h3>
-                  <p class="text-sm text-gray-600">Préstamo vence: {{ book.dueDate }}</p>
+                <div class="relative w-full sm:w-1/3 flex-shrink-0">
+                    <img :src="book.imgUrl" :alt="book.title" class="w-full h-48 sm:h-full object-cover rounded-t-lg sm:rounded-l-lg sm:rounded-t-none"/>
+                    <span class="absolute top-2 left-2 px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full shadow-md">
+                        Activo
+                    </span>
                 </div>
-                <button class="px-4 py-2 rounded-lg text-sm font-semibold text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
-                  Ver Detalles
-                </button>
+                <div class="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-1">{{ book.title }}</h3>
+                        <p class="text-sm text-gray-600">Autor: {{ book.author }}</p>
+                        <p class="text-sm text-gray-700 mt-2">
+                            Fecha de devolución: <span class="font-semibold text-green-700">{{ book.dueDate }}</span>
+                        </p>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button class="px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-100 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            Ver Detalles
+                        </button>
+                    </div>
+                </div>
               </div>
             </div>
-            <p v-else class="text-gray-500">No tienes ningún préstamo activo.</p>
+            <p v-else class="text-gray-500 italic p-4 bg-white rounded-lg shadow-sm">No tienes ningún préstamo activo.</p>
           </div>
 
           <div v-if="activeTab === 'configuracion'" class="space-y-8">
@@ -117,104 +145,210 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label for="name" class="form-label">Nombre Completo</label>
-                    <input type="text" id="name" v-model="user.name" class="form-input">
+                    <input type="text" id="name" v-model="user.name" class="form-input" disabled>
                   </div>
                   <div>
                     <label for="email" class="form-label">Correo Electrónico</label>
-                    <input type="email" id="email" v-model="user.email" class="form-input">
+                    <input type="email" id="email" v-model="user.email" class="form-input" disabled>
                   </div>
                 </div>
                 <div>
-                  <label for="university" class="form-label">Universidad</label>
-                  <input type="text" id="university" v-model="user.university" class="form-input">
+                  <label for="dni" class="form-label">DNI</label>
+                  <input type="text" id="dni" v-model="user.dni" maxlength="8" class="form-input" disabled>
                 </div>
                 <div class="text-right">
-                  <button type="submit" class="px-6 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    Guardar Cambios
-                  </button>
+                  <span class="text-xs text-gray-400 mr-2">Contacta al admin para cambios sensibles</span>
                 </div>
               </form>
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow-sm">
               <h2 class="text-xl font-semibold text-gray-800 border-b pb-3 mb-6">Cambiar Contraseña</h2>
-              <form @submit.prevent class="space-y-4">
+              
+              <form @submit.prevent="handleChangePassword" class="space-y-4">
+                
+                <div v-if="passwordMsg" class="p-3 bg-green-100 text-green-700 rounded-md text-sm">
+                  {{ passwordMsg }}
+                </div>
+                <div v-if="passwordError" class="p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                  {{ passwordError }}
+                </div>
+
                 <div>
                   <label for="pass_current" class="form-label">Contraseña Actual</label>
-                  <input type="password" id="pass_current" class="form-input">
+                  <input 
+                    v-model="passForm.current" 
+                    type="password" 
+                    id="pass_current" 
+                    required
+                    placeholder="Ingresa tu contraseña actual"
+                    class="form-input"
+                  >
                 </div>
                 <div>
                   <label for="pass_new" class="form-label">Nueva Contraseña</label>
-                  <input type="password" id="pass_new" class="form-input">
+                  <input 
+                    v-model="passForm.new" 
+                    type="password" 
+                    id="pass_new" 
+                    required
+                    placeholder="Mínimo 6 caracteres"
+                    class="form-input"
+                  >
                 </div>
                 <div>
                   <label for="pass_confirm" class="form-label">Confirmar Nueva Contraseña</label>
-                  <input type="password" id="pass_confirm" class="form-input">
+                  <input 
+                    v-model="passForm.confirm" 
+                    type="password" 
+                    id="pass_confirm" 
+                    required
+                    placeholder="Repite la nueva contraseña"
+                    class="form-input"
+                  >
                 </div>
                 <div class="text-right">
-                  <button type="submit" class="px-6 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    Actualizar Contraseña
+                  <button 
+                    type="submit" 
+                    :disabled="passwordLoading"
+                    class="px-6 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ml-auto"
+                  >
+                    <Loader2 v-if="passwordLoading" class="animate-spin" :size="18" />
+                    <span>{{ passwordLoading ? 'Actualizando...' : 'Actualizar Contraseña' }}</span>
                   </button>
                 </div>
               </form>
             </div>
-
           </div>
 
         </section>
       </div>
     </main>
-    </div>
+  </div>
 </template>
   
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router' //
-import { useUserStore } from '@/stores/user' //
-// 3. Importar el componente Sidebar
-import Sidebar_student from './Sidebar_student.vue' // (Ajusta la ruta si es necesario)
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import Sidebar_student from './Sidebar_student.vue'
 
-// 4. Se eliminó 'RouterLink' y los íconos del sidebar (GraduationCap, ChevronRight, etc.)
 import { 
   Edit3,
-  BookOpen,
+  Clock, 
   BookMarked,
-  Settings
+  Settings,
+  Loader2 
 } from 'lucide-vue-next'
 
-// --- Imágenes (Mock) ---
+// Imports de imágenes
 import imgLibro4 from '@/assets/imagenes/libro4.png'
 import imgLibro2 from '@/assets/imagenes/libro2.png'
 import imgLibro1 from '@/assets/imagenes/libro1.png'
+import imgLibro5 from '@/assets/imagenes/libro4.png' 
 
-// --- ESTADO DEL SIDEBAR ---
-// 5. Este estado ahora controla al componente hijo y al <main>
 const isExpanded = ref(false)
+const activeTab = ref('reservas')
+const router = useRouter()
+const userStore = useUserStore()
 
-// --- ESTADO DEL PERFIL ---
-const activeTab = ref('publicaciones') // Pestaña por defecto
+// --- LÓGICA PARA OBTENER DATOS REALES DEL STORE ---
+const userData = userStore.user || {}
 
-// 1. Datos del Usuario (Mock)
+const getInitials = (nombres, apellidos) => {
+    const n = nombres ? nombres.charAt(0) : ''
+    const a = apellidos ? apellidos.charAt(0) : ''
+    return (n + a).toUpperCase() || 'U'
+}
+
 const user = ref({
-  name: 'Javier Gonzales',
-  email: 'javier.admin@universidad.edu.pe',
-  university: 'Universidad Nacional de Ica',
-  initials: 'JG'
+  name: `${userData.nombres || ''} ${userData.apellidos || ''}`.trim(),
+  email: userData.email || '',
+  dni: userData.dni || '',
+  initials: getInitials(userData.nombres, userData.apellidos)
 })
 
-// 2. Libros publicados por el usuario (Mock)
-const myBooks = ref([
+// --- LÓGICA DE CAMBIO DE CONTRASEÑA ---
+const passForm = ref({
+  current: '',
+  new: '',
+  confirm: ''
+})
+const passwordLoading = ref(false)
+const passwordMsg = ref('')
+const passwordError = ref('')
+
+const handleChangePassword = async () => {
+  // 1. Resetear mensajes
+  passwordMsg.value = ''
+  passwordError.value = ''
+
+  // 2. Validaciones Locales
+  if (passForm.value.new !== passForm.value.confirm) {
+    passwordError.value = 'Las nuevas contraseñas no coinciden.'
+    return
+  }
+  if (passForm.value.new.length < 6) {
+    passwordError.value = 'La nueva contraseña debe tener al menos 6 caracteres.'
+    return
+  }
+
+  // 3. Preparar envío
+  passwordLoading.value = true
+  
+  try {
+    const API_URL = import.meta.env.VITE_APP_API_URL
+    
+    // Endpoint definido en tu auth_router.py
+    const response = await fetch(`${API_URL}/auth/me/password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userStore.token}` // Enviamos el token del usuario logueado
+      },
+      body: JSON.stringify({
+        password_actual: passForm.value.current,
+        password_nueva: passForm.value.new
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.detail || 'Error al actualizar la contraseña')
+    }
+
+    // 4. Éxito
+    passwordMsg.value = '¡Contraseña actualizada correctamente!'
+    // Limpiar formulario
+    passForm.value = { current: '', new: '', confirm: '' }
+
+  } catch (error) {
+    console.error(error)
+    passwordError.value = error.message
+  } finally {
+    passwordLoading.value = false
+  }
+}
+
+// Datos de ejemplo para libros (estos siguen siendo estáticos por ahora)
+const myReservations = ref([
   {
     id: 4,
     title: 'Principios de Marketing',
     author: 'Philip Kotler',
-    available: 8,
     imgUrl: imgLibro4,
-    price: 80.00,
+    pickupDeadline: 'Mañana, 12:00 PM' 
+  },
+  {
+    id: 5,
+    title: 'La invención de los derechos humanos',
+    author: 'Lynn Hunt',
+    imgUrl: imgLibro5,
+    pickupDeadline: 'Hoy, 5:00 PM'
   }
 ])
 
-// 3. Libros prestados por el usuario (Mock)
 const myRentals = ref([
   {
     id: 1,
@@ -232,53 +366,27 @@ const myRentals = ref([
   }
 ])
 
-// --- Lógica de Cierre de Sesión ---
-const router = useRouter()
-const userStore = useUserStore()
-
-// 2. Definir la función que manejará el evento 'logout'
 const handleLogout = () => {
-  // 3. Ejecutar la lógica de cierre de sesión
   userStore.clearUser() 
-  router.push('/login') // Redirige al login
+  router.push('/login')
 }
-
 </script>
   
 <style scoped>
-/* --- 6. Se eliminaron los estilos .nav-link, .active-link y .nav-text --- */
-
-/* --- ESTILOS DEL PERFIL (UI FASE 3) --- */
-
-/* Estilo para los botones de las pestañas */
 .tab-button {
   @apply flex items-center gap-2 px-4 py-3 font-semibold text-gray-500 border-b-2 border-transparent -mb-px;
   @apply transition-colors duration-200 hover:text-indigo-600 hover:border-indigo-300;
 }
 
-/* Estilo para la pestaña activa */
 .active-tab {
   @apply text-indigo-700 border-indigo-600;
 }
 
-/* Estilos para los formularios (minimalista) */
 .form-label {
   @apply block text-sm font-medium text-gray-700 mb-1;
 }
 .form-input {
   @apply w-full px-4 py-2 rounded-lg bg-gray-100 text-gray-900;
   @apply border border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
 }
 </style>
