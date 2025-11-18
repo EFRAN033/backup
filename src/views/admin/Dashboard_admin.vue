@@ -4,11 +4,11 @@
     <SidebarAdmin 
         :expanded="isSidebarExpanded" 
         @toggle-sidebar="isSidebarExpanded = !isSidebarExpanded"
-        @logout="handleLogout" />
+        @logout="handleLogout" 
+    />
     
     <div 
       class="flex-1 flex flex-col transition-all duration-300 ease-in-out"
-      :class="isSidebarExpanded ? 'ml-64' : 'ml-20'"
     >
       <header class="h-14 bg-white flex items-center justify-between px-6 border-b">
         <p class="text-sm text-gray-500">
@@ -28,7 +28,7 @@
       >
         <div>
             <h1 class="text-2xl font-semibold">Gestión de Usuarios</h1>
-            <p class="text-sm text-white/90 mt-1">Administra los usuarios de la biblioteca: estudiantes, bibliotecarios y administradores. Maximiza la satisfacción del usuario-cliente.</p>
+            <p class="text-sm text-white/90 mt-1">Administra los usuarios de la biblioteca: estudiantes, bibliotecarios y administradores.</p>
         </div>
         <button
             class="px-6 py-3 rounded-xl bg-white text-[#4626d0] text-sm font-bold shadow-lg hover:bg-gray-100 transition whitespace-nowrap"
@@ -263,7 +263,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import Swal from 'sweetalert2' // <--- IMPORTANTE: Importamos la librería aquí
+import Swal from 'sweetalert2' 
 
 import SidebarAdmin from '@/views/admin/Sidebar_admin.vue' 
 
@@ -278,8 +278,6 @@ const handleLogout = () => {
     userStore.clearUser() 
     router.push('/login') 
 }
-// ------------------------------------------
-
 
 // --- ESTADOS DE LA TABLA ---
 const users = ref([])
@@ -321,7 +319,7 @@ const setActiveTab = (tab) => {
     filterEstado.value = 'all';
 }
 
-// --- FUNCIÓN DE APROBACIÓN (Actualizada con SweetAlert2) ---
+// --- FUNCIÓN DE APROBACIÓN ---
 const acceptUser = async (userId) => {
     const authToken = localStorage.getItem('access_token'); 
 
@@ -345,7 +343,6 @@ const acceptUser = async (userId) => {
             const index = users.value.findIndex(u => u.id === userId);
             if (index !== -1) {
                 users.value[index].estado = 'activo';
-                // Alerta de éxito bonita
                 Swal.fire(
                     '¡Aprobado!',
                     `Solicitud de ${approvedUser.nombres || approvedUser.email} aceptada.`,
@@ -363,9 +360,8 @@ const acceptUser = async (userId) => {
     }
 }
 
-// --- FUNCIÓN DE ELIMINAR USUARIO (Con SweetAlert2 y Borrado Físico) ---
+// --- FUNCIÓN DE ELIMINAR USUARIO ---
 const deleteUser = async (userId) => {
-    // Usamos Swal en lugar de window.confirm para evitar bloqueos del navegador
     const result = await Swal.fire({
         title: '¿Estás seguro?',
         text: "Esta acción eliminará al usuario permanentemente (y sus alquileres/productos) y no se puede deshacer.",
@@ -377,7 +373,6 @@ const deleteUser = async (userId) => {
         cancelButtonText: 'Cancelar'
     });
 
-    // Si el usuario no confirmó (dio click fuera o en cancelar), salimos
     if (!result.isConfirmed) {
         return;
     }
@@ -397,16 +392,13 @@ const deleteUser = async (userId) => {
         });
 
         if (response.status === 204) {
-            // Eliminamos la fila de la lista localmente
             users.value = users.value.filter(u => u.id !== userId);
-            // Alerta de éxito
             Swal.fire(
                 '¡Eliminado!',
                 'El usuario ha sido eliminado exitosamente.',
                 'success'
             );
         } else {
-            // Manejo de errores
             let errorMessage = "No se pudo eliminar el usuario.";
             try {
                 const errorData = await response.json();
