@@ -1,211 +1,350 @@
 <template>
-  <div class="min-h-screen flex bg-[#F8FAFC] font-sans text-slate-600">
+  <div class="min-h-screen flex bg-[#FAFAFA] font-sans text-slate-600">
     
-    <SidebarLibrarian />
+    <Sidebar_librarian />
 
-    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
       
-      <header class="h-20 flex-shrink-0 flex items-center justify-between px-10 bg-white/50 backdrop-blur-sm border-b border-slate-200/60 z-10">
-        <div class="flex flex-col">
-          <h1 class="text-xl font-bold text-slate-900 tracking-tight">Gestión Bibliográfica</h1>
-          <nav class="flex gap-2 text-xs font-medium mt-0.5">
-            <span class="text-slate-400 hover:text-slate-500 transition-colors cursor-pointer">Biblioteca</span>
-            <span class="text-slate-300">/</span>
-            <span class="text-indigo-600">Inventario Activo</span>
-          </nav>
+      <header class="h-20 flex items-center justify-between px-8 bg-white border-b border-slate-200">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">Inventario de Libros</h1>
+          <p class="text-sm text-slate-400">Administra el catálogo de la biblioteca</p>
         </div>
         
-        <div class="flex items-center gap-4">
-          <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200/50 flex items-center gap-2 transition-all transform hover:-translate-y-0.5 hover:shadow-indigo-300">
-            <Plus :size="18" stroke-width="2.5" />
-            <span>Nuevo Libro</span>
-          </button>
-        </div>
+        <button 
+          @click="openCreateModal"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-indigo-200 flex items-center gap-2 transition-all transform hover:-translate-y-0.5"
+        >
+          <Plus :size="20" />
+          Nuevo Libro
+        </button>
       </header>
 
-      <main class="flex-1 overflow-y-auto px-10 py-8 scroll-smooth">
+      <main class="flex-1 overflow-y-auto p-8">
         
-        <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200/60 mb-8 flex flex-col md:flex-row justify-between gap-4 sticky top-0 z-20">
-          
-          <div class="relative flex-1 max-w-lg group">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search :size="18" class="text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            </div>
-            <input
-              type="text"
-              placeholder="Buscar por título, ISBN, autor..."
-              class="block w-full pl-11 pr-4 py-3 bg-transparent text-sm font-medium text-slate-700 placeholder-slate-400 focus:outline-none rounded-xl focus:bg-slate-50 transition-colors"
+        <div class="mb-6 flex gap-4">
+          <div class="relative flex-1 max-w-lg">
+            <Search :size="20" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Buscar por título, autor o ISBN..." 
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
             />
-          </div>
-
-          <div class="flex items-center gap-2 px-2 overflow-x-auto">
-            <div class="h-8 w-px bg-slate-200 mx-1"></div> <button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200/50">
-              <Filter :size="16" />
-              <span>Categoría</span>
-              <ChevronDown :size="14" class="text-slate-400" />
-            </button>
-
-            <button class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200/50">
-              <SlidersHorizontal :size="16" />
-              <span>Estado</span>
-              <ChevronDown :size="14" class="text-slate-400" />
-            </button>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div v-if="loading" class="flex justify-center py-20">
+          <Loader2 :size="40" class="animate-spin text-indigo-600" />
+        </div>
+
+        <div v-else class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-50/50">
+            <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-bold tracking-wider">
               <tr>
-                <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">Detalle del Libro</th>
-                <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">Ubicación & Cat.</th>
-                <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 text-center">Disponibilidad</th>
-                <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 text-right">Gestión</th>
+                <th class="px-6 py-4">Título / Autor</th>
+                <th class="px-6 py-4">ISBN</th>
+                <th class="px-6 py-4">Categoría</th>
+                <th class="px-6 py-4 text-center">Ubicación</th>
+                <th class="px-6 py-4 text-center">Stock</th>
+                <th class="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr v-for="(libro, index) in libros" :key="index" class="group hover:bg-slate-50/80 transition-colors duration-200">
-                
-                <td class="px-6 py-5">
-                  <div class="flex items-start gap-4">
-                    <div class="w-12 h-16 rounded bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400 shadow-sm group-hover:shadow-md transition-shadow border border-slate-200">
-                      <Book :size="20" stroke-width="1.5" />
+              <tr v-for="libro in libros" :key="libro.id" class="hover:bg-slate-50/80 transition-colors group">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                      <Book :size="20" />
                     </div>
-                    <div class="flex-1 min-w-0">
-                      <h3 class="text-sm font-bold text-slate-800 truncate pr-4 group-hover:text-indigo-700 transition-colors">{{ libro.titulo }}</h3>
-                      <p class="text-xs font-medium text-slate-500 mt-0.5">{{ libro.autor }}</p>
-                      <div class="flex items-center gap-2 mt-1.5">
-                        <span class="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] font-mono text-slate-500 tracking-wide border border-slate-200">ISBN {{ libro.isbn }}</span>
-                        <span class="text-[10px] text-slate-400">{{ libro.editorial }} • {{ libro.year }}</span>
-                      </div>
+                    <div>
+                      <p class="font-bold text-slate-800">{{ libro.titulo }}</p>
+                      <p class="text-xs text-slate-400">{{ libro.autor }} ({{ libro.ano_publicacion || 'N/A' }})</p>
                     </div>
                   </div>
                 </td>
-
-                <td class="px-6 py-5 align-top">
-                  <div class="flex flex-col gap-1">
-                    <span class="inline-flex w-fit items-center px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100/50">
-                      {{ libro.categoria }}
-                    </span>
-                    <div class="flex items-center gap-1.5 text-xs text-slate-500 mt-1 pl-1">
-                      <MapPin :size="14" class="text-slate-400" />
-                      <span>Estante <strong class="text-slate-700">{{ libro.ubicacion }}</strong></span>
-                    </div>
+                <td class="px-6 py-4 font-mono text-sm text-slate-500">{{ libro.isbn || '-' }}</td>
+                <td class="px-6 py-4">
+                  <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                    {{ libro.categoria || 'General' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center text-sm text-slate-600">
+                  {{ libro.ubicacion || '-' }}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <div class="flex flex-col items-center">
+                    <span class="font-bold text-slate-700">{{ libro.ejemplares_disponibles }} / {{ libro.ejemplares_totales }}</span>
+                    <span class="text-[10px] text-slate-400 uppercase">Disponibles</span>
                   </div>
                 </td>
-
-                <td class="px-6 py-5 align-middle">
-                  <div class="flex flex-col items-center gap-1.5 w-32 mx-auto">
-                    <div class="flex justify-between w-full text-xs mb-1">
-                      <span class="font-bold" :class="libro.stockDisponible > 0 ? 'text-slate-700' : 'text-rose-600'">
-                        {{ libro.stockDisponible }} disp.
-                      </span>
-                      <span class="text-slate-400">/ {{ libro.stockTotal }}</span>
-                    </div>
-                    <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        class="h-full rounded-full transition-all duration-500"
-                        :class="libro.stockDisponible > 0 ? 'bg-emerald-500' : 'bg-rose-500'"
-                        :style="{ width: (libro.stockDisponible / libro.stockTotal) * 100 + '%' }"
-                      ></div>
-                    </div>
-                    <div class="mt-1">
-                       <span v-if="libro.stockDisponible === 0" class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">AGOTADO</span>
-                    </div>
-                  </div>
+                <td class="px-6 py-4 text-right flex justify-end gap-2">
+                  <button @click="openEditModal(libro)" class="text-slate-400 hover:text-indigo-600 p-2 hover:bg-indigo-50 rounded-lg transition-colors" title="Editar">
+                    <Edit :size="18" />
+                  </button>
+                  <button @click="deleteBook(libro.id)" class="text-slate-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                    <Trash2 :size="18" />
+                  </button>
                 </td>
-
-                <td class="px-6 py-5 text-right align-middle">
-                  <div class="inline-flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity duration-200">
-                    <button class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Editar Libro">
-                      <Edit3 :size="18" stroke-width="2" />
-                    </button>
-                    
-                    <div class="h-4 w-px bg-slate-200 mx-1"></div>
-                    
-                    <button 
-                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-                      :class="libro.stockDisponible > 0 
-                        ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-sm' 
-                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'"
-                      :disabled="libro.stockDisponible === 0"
-                    >
-                      <span>Prestar</span>
-                      <ArrowRight :size="14" />
-                    </button>
-                  </div>
+              </tr>
+              <tr v-if="libros.length === 0">
+                <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                  No hay libros registrados en el sistema.
                 </td>
-
               </tr>
             </tbody>
           </table>
+        </div>
 
-          <div class="bg-white px-6 py-4 border-t border-slate-200 flex items-center justify-between">
-            <p class="text-xs text-slate-500">Mostrando <span class="font-bold text-slate-800">1-4</span> de <span class="font-bold text-slate-800">128</span> resultados</p>
-            <div class="flex gap-2">
-              <button class="px-3 py-1 text-xs font-medium text-slate-500 bg-white border border-slate-200 rounded-md hover:border-indigo-300 hover:text-indigo-600 transition-colors disabled:opacity-50">Anterior</button>
-              <button class="px-3 py-1 text-xs font-medium text-slate-500 bg-white border border-slate-200 rounded-md hover:border-indigo-300 hover:text-indigo-600 transition-colors">Siguiente</button>
-            </div>
+      </main>
+
+      <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fade-in-up">
+          
+          <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+            <h2 class="text-xl font-bold text-slate-800">{{ isEditing ? 'Editar Libro' : 'Registrar Nuevo Libro' }}</h2>
+            <button @click="closeModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+              <X :size="24" />
+            </button>
           </div>
 
+          <form @submit.prevent="handleSubmit" class="p-8 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="group col-span-2">
+                <label class="label-form">Título del Libro <span class="text-red-500">*</span></label>
+                <input v-model="form.titulo" type="text" required class="input-form" placeholder="Ej: Cien años de soledad" />
+              </div>
+              
+              <div class="group">
+                <label class="label-form">Autor <span class="text-red-500">*</span></label>
+                <input v-model="form.autor" type="text" required class="input-form" placeholder="Ej: Gabriel García Márquez" />
+              </div>
+              
+              <div class="group">
+                <label class="label-form">ISBN</label>
+                <input v-model="form.isbn" type="text" class="input-form" placeholder="Ej: 978-3-16-148410-0" />
+              </div>
+
+              <div class="group">
+                <label class="label-form">Editorial</label>
+                <input v-model="form.editorial" type="text" class="input-form" placeholder="Ej: Editorial Sudamericana" />
+              </div>
+
+              <div class="group">
+                <label class="label-form">Año de Publicación</label>
+                <input v-model.number="form.ano_publicacion" type="number" class="input-form" placeholder="Ej: 1967" />
+              </div>
+
+              <div class="group">
+                <label class="label-form">Categoría</label>
+                <select v-model="form.categoria" class="input-form">
+                  <option value="">Seleccionar...</option>
+                  <option value="Novela">Novela</option>
+                  <option value="Ciencia">Ciencia</option>
+                  <option value="Historia">Historia</option>
+                  <option value="Tecnología">Tecnología</option>
+                  <option value="Educación">Educación</option>
+                </select>
+              </div>
+
+              <div class="group">
+                <label class="label-form">Ubicación Física</label>
+                <input v-model="form.ubicacion" type="text" class="input-form" placeholder="Ej: Pasillo A, Estante 3" />
+              </div>
+
+              <div class="group col-span-2">
+                <label class="label-form">Cantidad de Ejemplares <span class="text-red-500">*</span></label>
+                <input 
+                  v-model.number="form.ejemplares_totales" 
+                  type="number" 
+                  min="1" 
+                  required 
+                  class="input-form" 
+                />
+                <p v-if="!isEditing" class="text-xs text-slate-400 mt-1">Se establecerá automáticamente el mismo número como disponibles al crear.</p>
+                <p v-else class="text-xs text-slate-400 mt-1">Si el stock total es modificado, el stock disponible debe ser ajustado en la base de datos (no en este formulario).</p>
+              </div>
+            </div>
+
+            <div class="pt-4 flex justify-end gap-3">
+              <button type="button" @click="closeModal" class="btn-secondary">Cancelar</button>
+              <button type="submit" :disabled="submitting" class="btn-primary">
+                <Loader2 v-if="submitting" class="animate-spin mr-2" :size="18" />
+                <span>{{ isEditing ? 'Guardar Cambios' : 'Registrar Libro' }}</span>
+              </button>
+            </div>
+
+          </form>
         </div>
-      </main>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import SidebarLibrarian from './Sidebar_librarian.vue'
-import { 
-  Search, Plus, Book, MapPin, Filter, SlidersHorizontal,
-  ChevronDown, Edit3, Trash2, ArrowRight
-} from 'lucide-vue-next'
+import { ref, onMounted } from 'vue';
+import Sidebar_librarian from './Sidebar_librarian.vue';
+import { useUserStore } from '@/stores/user';
+import { Plus, Search, Book, Edit, Trash2, Loader2, X } from 'lucide-vue-next';
 
-const libros = ref([
-  {
-    titulo: 'Matemática 3° Secundaria: Edición Revisada',
-    autor: 'Ministerio de Educación',
-    year: 2023,
-    editorial: 'MINEDU',
-    isbn: '978-612-00-0001',
-    categoria: 'Educación',
-    ubicacion: 'A3-12',
-    stockTotal: 20,
-    stockDisponible: 12
-  },
-  {
-    titulo: 'Diccionario Enciclopédico de Ciencias Naturales',
-    autor: 'Augusto Salazar Bondy',
-    year: 2021,
-    editorial: 'Editorial Alfa',
-    isbn: '978-612-00-0045',
-    categoria: 'Referencia',
-    ubicacion: 'B1-04',
-    stockTotal: 15,
-    stockDisponible: 14
-  },
-  {
-    titulo: 'Historia del Perú: La República Aristocrática',
-    autor: 'Valeria Rossi',
-    year: 2023,
-    editorial: 'Andina Editores',
-    isbn: '978-612-00-9982',
-    categoria: 'Historia',
-    ubicacion: 'H2-10',
-    stockTotal: 8,
-    stockDisponible: 0 
-  },
-  {
-    titulo: 'Física Fundamental I: Teoría y Práctica',
-    autor: 'Carlos G. Martínez',
-    year: 2020,
-    editorial: 'Ciencia Pura',
-    isbn: '978-612-00-3321',
-    categoria: 'Ciencias',
-    ubicacion: 'C4-01',
-    stockTotal: 30,
-    stockDisponible: 5
+const userStore = useUserStore();
+const libros = ref([]);
+const loading = ref(true);
+const showModal = ref(false);
+const submitting = ref(false);
+const isEditing = ref(false); // Bandera para saber si editamos o creamos
+const currentId = ref(null);  // ID del libro que se edita
+
+// Modelo del formulario basado en tu DTO (LibroCrearDTO/LibroUpdateDTO)
+const form = ref({
+  id: null,
+  titulo: '',
+  autor: '',
+  isbn: '',
+  editorial: '',
+  ano_publicacion: null,
+  categoria: '',
+  ubicacion: '',
+  ejemplares_totales: 1,
+  ejemplares_disponibles: 1, // Se incluye para edición, pero solo se usa en la creación
+});
+
+const API_URL = import.meta.env.VITE_APP_API_URL;
+
+// --- 1. CARGAR LIBROS DESDE LA BASE DE DATOS ---
+const fetchLibros = async () => {
+  loading.value = true;
+  try {
+    const response = await fetch(`${API_URL}/libros/`);
+    if (response.ok) {
+      libros.value = await response.json();
+    } else {
+      console.error("Error al obtener libros");
+    }
+  } catch (error) {
+    console.error('Error de red al cargar libros:', error);
+  } finally {
+    loading.value = false;
   }
-])
+};
+
+// --- 2. GESTIONAR ENVÍO (CREAR / EDITAR) ---
+const handleSubmit = async () => {
+  submitting.value = true;
+  try {
+    const method = isEditing.value ? 'PUT' : 'POST';
+    const url = isEditing.value ? `${API_URL}/libros/${currentId.value}` : `${API_URL}/libros/`;
+    
+    let payload = { ...form.value };
+
+    // Lógica para CREAR: Aseguramos que disponibles = totales
+    if (!isEditing.value) {
+      payload.ejemplares_disponibles = payload.ejemplares_totales;
+    } 
+    // Lógica para EDITAR: Eliminamos campos que no deberíamos mandar en PUT si están vacíos o son redundantes.
+    else {
+        // En tu backend (LibroUpdateDTO), los campos son opcionales. Pydantic los manejará.
+        delete payload.ejemplares_disponibles; 
+    }
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userStore.token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Error al guardar el libro');
+    }
+
+    await fetchLibros(); // Recargar la tabla
+    closeModal();
+    alert(isEditing.value ? 'Libro actualizado correctamente' : 'Libro registrado correctamente');
+
+  } catch (error) {
+    console.error('Error en handleSubmit:', error);
+    alert('Operación fallida: ' + error.message);
+  } finally {
+    submitting.value = false;
+  }
+};
+
+// --- 3. ELIMINAR LIBRO ---
+const deleteBook = async (id) => {
+  if (!confirm('¿Estás seguro de eliminar este libro? Esta acción es irreversible y fallará si hay préstamos activos.')) return;
+
+  try {
+    const response = await fetch(`${API_URL}/libros/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${userStore.token}`
+      }
+    });
+
+    if (response.status === 404) throw new Error('El libro ya no existe.');
+    if (!response.ok) throw new Error('Error al eliminar (Puede tener préstamos pendientes).');
+    
+    await fetchLibros(); // Recargar la lista para que se actualice la tabla
+    alert('Libro eliminado correctamente');
+
+  } catch (error) {
+    console.error('Error al eliminar:', error);
+    alert('No se pudo eliminar: ' + error.message);
+  }
+};
+
+
+// --- Utilidades del Modal ---
+const openCreateModal = () => {
+  isEditing.value = false;
+  currentId.value = null;
+  // Resetear formulario
+  form.value = {
+    id: null,
+    titulo: '', autor: '', isbn: '', editorial: '', ano_publicacion: null, categoria: '', ubicacion: '', ejemplares_totales: 1, ejemplares_disponibles: 1
+  };
+  showModal.value = true;
+};
+
+const openEditModal = (libro) => {
+  isEditing.value = true;
+  currentId.value = libro.id;
+  // Copia profunda para no mutar el objeto original en la tabla
+  form.value = { ...libro }; 
+  showModal.value = true;
+};
+
+const closeModal = () => showModal.value = false;
+
+onMounted(() => {
+  fetchLibros();
+});
 </script>
+
+<style scoped>
+.label-form {
+  @apply block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2;
+}
+.input-form {
+  @apply w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-medium focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all;
+}
+.btn-primary {
+  @apply px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all flex items-center shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+.btn-secondary {
+  @apply px-6 py-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl transition-all;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+</style>
