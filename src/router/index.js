@@ -15,6 +15,10 @@ import DetailStudent from '../views/student/Detail_student.vue'; // Importación
 
 // --- 2. IMPORTACIÓN DE VISTAS DE ADMINISTRADOR ---
 import DashboardAdmin from '../views/admin/Dashboard_admin.vue'; 
+// AÑADIDO: Importación de las nuevas vistas de Admin
+import BooksAdmin from '../views/admin/Books.vue';
+import IAAdmin from '../views/admin/IA.vue';
+import ProfileAdmin from '../views/admin/Profile_admin.vue'; 
 
 // --- 3. IMPORTACIÓN DE VISTAS DE BIBLIOTECARIO ---
 import DashboardLibrarian from '../views/Librarian/Dashboard_librarian.vue';
@@ -88,6 +92,25 @@ const routes = [
       requiresAdmin: true
     }
   },
+  // AÑADIDO: Rutas de Libros, IA y Perfil para Admin
+  {
+    path: '/admin/libros',
+    name: 'Books_admin',
+    component: BooksAdmin,
+    meta: { title: 'Gestión Libros | Admin', requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/ia',
+    name: 'IA_admin',
+    component: IAAdmin,
+    meta: { title: 'Herramienta IA | Admin', requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/perfil',
+    name: 'Profile_admin',
+    component: ProfileAdmin,
+    meta: { title: 'Mi Perfil | Admin', requiresAuth: true, requiresAdmin: true }
+  },
 
   // --- RUTAS DE BIBLIOTECARIO ---
   {
@@ -102,19 +125,19 @@ const routes = [
   },
   {
     path: '/bibliotecario/gestion-libros',
-    name: 'Books_librarian', // <--- ¡NOMBRE DE RUTA CORREGIDO!
+    name: 'Books_librarian', 
     component: BookManagementLibrarian,
     meta: { title: 'Gestión Libros | Bibliotecario', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/bibliotecario/alquileres',
-    name: 'Rentals_librarian', // Coincide con goToRentals()
+    name: 'Rentals_librarian', 
     component: RentalsLibrarian,
     meta: { title: 'Alquileres | Bibliotecario', requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/bibliotecario/perfil',
-    name: 'Profile_librarian', // Coincide con goToProfile()
+    name: 'Profile_librarian', 
     component: ProfileLibrarian,
     meta: { title: 'Perfil | Bibliotecario', requiresAuth: true, requiresAdmin: true }
   },
@@ -130,7 +153,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    // Mantiene la posición del scroll al navegar atrás, o sube arriba al navegar adelante
     if (savedPosition) {
       return savedPosition;
     } else {

@@ -40,8 +40,7 @@
       </router-link>
 
       <router-link 
-        :to="{ name: 'BookManagement_librarian' }"
-        class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
+        :to="{ name: 'Books_librarian' }" class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
         active-class="bg-indigo-600 text-white shadow-lg shadow-indigo-900/50"
         :class="!isExpanded ? 'justify-center' : ''"
       >
@@ -85,7 +84,8 @@
       </router-link>
 
        <button 
-        @click="handleLogout" class="w-full flex items-center gap-3 p-3 mt-1 rounded-xl text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 transition-all duration-200 group relative"
+        @click="handleLogout" 
+        class="w-full flex items-center gap-3 p-3 mt-1 rounded-xl text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 transition-all duration-200 group relative"
         :class="!isExpanded ? 'justify-center' : ''"
       >
         <LogOut :size="22" class="flex-shrink-0 transition-colors" />

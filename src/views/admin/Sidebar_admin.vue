@@ -26,8 +26,7 @@
     >
       
       <router-link 
-        :to="{ name: 'Dashboard_librarian' }"
-        class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
+        :to="{ name: 'dashboard' }" class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
         active-class="bg-indigo-600 text-white shadow-lg shadow-indigo-900/50"
         :class="!isExpanded ? 'justify-center' : ''"
       >
@@ -40,8 +39,7 @@
       </router-link>
 
       <router-link 
-        :to="{ name: 'Books_librarian' }" 
-        class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
+        :to="{ name: 'Books_admin' }" class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
         active-class="bg-indigo-600 text-white shadow-lg shadow-indigo-900/50"
         :class="!isExpanded ? 'justify-center' : ''"
       >
@@ -54,16 +52,14 @@
       </router-link>
 
       <router-link 
-        :to="{ name: 'Rentals_librarian' }"
-        class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
+        :to="{ name: 'IA_admin' }" class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
         active-class="bg-indigo-600 text-white shadow-lg shadow-indigo-900/50"
         :class="!isExpanded ? 'justify-center' : ''"
       >
-        <FileText :size="22" class="flex-shrink-0 transition-colors" />
-        <span v-if="isExpanded" class="font-medium text-sm whitespace-nowrap transition-opacity duration-300">Alquileres</span>
+        <FileText :size="22" class="flex-shrink-0 transition-colors" /> <span v-if="isExpanded" class="font-medium text-sm whitespace-nowrap transition-opacity duration-300">IA</span>
         
         <div v-if="!isExpanded" class="absolute left-14 bg-slate-800 text-white text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[60] shadow-xl border border-slate-600/50">
-          Alquileres
+          Herramienta IA
         </div>
       </router-link>
 
@@ -71,8 +67,7 @@
 
     <div class="p-3 border-t border-white/5 mb-2">
       <router-link 
-        :to="{ name: 'Profile_librarian' }"
-        class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
+        :to="{ name: 'Profile_admin' }" class="flex items-center gap-3 p-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200 group relative"
         active-class="bg-indigo-600 text-white shadow-lg shadow-indigo-900/50"
         :class="!isExpanded ? 'justify-center' : ''"
       >
@@ -85,8 +80,7 @@
       </router-link>
 
        <button 
-        @click="handleLogout" 
-        class="w-full flex items-center gap-3 p-3 mt-1 rounded-xl text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 transition-all duration-200 group relative"
+        @click="handleLogout" class="w-full flex items-center gap-3 p-3 mt-1 rounded-xl text-rose-300 hover:text-rose-100 hover:bg-rose-500/20 transition-all duration-200 group relative"
         :class="!isExpanded ? 'justify-center' : ''"
       >
         <LogOut :size="22" class="flex-shrink-0 transition-colors" />
@@ -109,7 +103,7 @@ import {
   ChevronLeft, 
   Home, 
   BookOpen, 
-  FileText, 
+  FileText, // Se mantiene FileText para el ícono de IA
   UserCircle,
   LogOut 
 } from 'lucide-vue-next';
