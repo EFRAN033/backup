@@ -37,7 +37,7 @@
                           </div>
                           
                           <h2 class="text-xl font-bold text-gray-900">
-                             {{ userData.nombres || 'Administrador' }} {{ userData.apellidos || '' }}
+                             {{ userData.nombres || 'Admin' }} {{ userData.apellidos || '' }}
                           </h2>
                           <p class="text-sm text-gray-500 mb-4 font-medium">{{ userData.email }}</p>
                           
@@ -58,7 +58,7 @@
                           </div>
                           <div>
                               <h3 class="text-lg font-bold text-gray-900">Seguridad y Acceso</h3>
-                              <p class="text-xs text-gray-500">Información de tu credencial principal.</p>
+                              <p class="text-xs text-gray-500">Actualiza tu contraseña periódicamente.</p>
                           </div>
                       </div>
 
@@ -76,9 +76,6 @@
                                           disabled 
                                           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-600 font-medium cursor-not-allowed focus:ring-0 focus:border-gray-200 transition-colors"
                                       />
-                                      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                          <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                      </div>
                                   </div>
                               </div>
 
@@ -102,17 +99,32 @@
                           <div class="space-y-5">
                               <div>
                                   <label class="block text-sm font-semibold text-gray-700 mb-2 ml-1">Contraseña Actual</label>
-                                  <input type="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#000037]/20 focus:border-[#000037] text-sm transition-all shadow-sm placeholder-gray-300" placeholder="Ingresa tu clave actual para confirmar" />
+                                  <input 
+                                      v-model="passwordForm.actual"
+                                      type="password" 
+                                      class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#000037]/20 focus:border-[#000037] text-sm transition-all shadow-sm placeholder-gray-300" 
+                                      placeholder="Ingresa tu clave actual para confirmar" 
+                                  />
                               </div>
 
                               <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                   <div>
                                       <label class="block text-sm font-semibold text-gray-700 mb-2 ml-1">Nueva Contraseña</label>
-                                      <input type="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#000037]/20 focus:border-[#000037] text-sm transition-all shadow-sm placeholder-gray-300" placeholder="Mínimo 8 caracteres" />
+                                      <input 
+                                          v-model="passwordForm.nueva"
+                                          type="password" 
+                                          class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#000037]/20 focus:border-[#000037] text-sm transition-all shadow-sm placeholder-gray-300" 
+                                          placeholder="Mínimo 8 caracteres" 
+                                      />
                                   </div>
                                   <div>
                                       <label class="block text-sm font-semibold text-gray-700 mb-2 ml-1">Confirmar Nueva</label>
-                                      <input type="password" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#000037]/20 focus:border-[#000037] text-sm transition-all shadow-sm placeholder-gray-300" placeholder="Repite la nueva clave" />
+                                      <input 
+                                          v-model="passwordForm.confirmar"
+                                          type="password" 
+                                          class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#000037]/20 focus:border-[#000037] text-sm transition-all shadow-sm placeholder-gray-300" 
+                                          placeholder="Repite la nueva clave" 
+                                      />
                                   </div>
                               </div>
                           </div>
@@ -124,7 +136,7 @@
                                   class="px-8 py-3 bg-[#000037] text-white text-sm font-bold rounded-xl shadow-lg hover:bg-[#1a1a50] hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 disabled:opacity-70 disabled:transform-none disabled:shadow-none"
                               >
                                   <svg v-if="isSaving" class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                  {{ isSaving ? 'Actualizando...' : 'Actualizar Contraseña' }}
+                                  {{ isSaving ? 'Guardando...' : 'Actualizar Contraseña' }}
                               </button>
                           </div>
 
@@ -140,60 +152,104 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useUserStore } from '@/stores/user';
-  import Swal from 'sweetalert2';
-  import SidebarAdmin from './Sidebar_admin.vue'; 
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+import Swal from 'sweetalert2';
+import axios from 'axios';
+import SidebarAdmin from './Sidebar_admin.vue'; 
 
-  const router = useRouter();
-  const userStore = useUserStore();
-  const isSidebarExpanded = ref(false);
-  const isSaving = ref(false);
+const router = useRouter();
+const userStore = useUserStore();
+const isSidebarExpanded = ref(false);
+const isSaving = ref(false);
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
-  // Accedemos al usuario desde el Store. 
-  // NOTA: Asegúrate de que al hacer login, tu backend esté devolviendo el objeto 'usuario'
-  // y que el store lo esté guardando correctamente.
-  const userData = computed(() => userStore.user || {});
-  
-  const userInitial = computed(() => {
-      return userData.value.nombres ? userData.value.nombres.charAt(0).toUpperCase() : 'A';
-  });
+// Estado local para el formulario
+const passwordForm = ref({
+    actual: '',
+    nueva: '',
+    confirmar: ''
+});
 
-  // --- Acciones ---
+const userData = computed(() => userStore.user || {});
 
-  const updatePassword = async () => {
-      isSaving.value = true;
-      // Simulación de espera de red
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      isSaving.value = false;
-      
-      Swal.fire({
-          title: '¡Todo listo!',
-          text: 'Tu contraseña se ha actualizado correctamente.',
-          icon: 'success',
-          confirmButtonColor: '#000037', 
-          confirmButtonText: 'Entendido',
-          timer: 2500
-      });
-  };
+const userInitial = computed(() => {
+    return userData.value.nombres ? userData.value.nombres.charAt(0).toUpperCase() : 'A';
+});
 
-  const handleLogout = () => {
-      Swal.fire({
-          title: '¿Cerrar Sesión?',
-          text: "Saldrás del panel de administración.",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Salir',
-          cancelButtonText: 'Cancelar',
-          reverseButtons: true
-      }).then((result) => {
-          if (result.isConfirmed) {
-              userStore.clearUser();
-              router.push('/login');
-          }
-      });
-  };
+// --- Acciones ---
+
+const updatePassword = async () => {
+    // 1. Validaciones Locales
+    if (!passwordForm.value.actual || !passwordForm.value.nueva || !passwordForm.value.confirmar) {
+        Swal.fire('Campos vacíos', 'Por favor, completa todos los campos de contraseña.', 'warning');
+        return;
+    }
+
+    if (passwordForm.value.nueva !== passwordForm.value.confirmar) {
+        Swal.fire('Error', 'La nueva contraseña y su confirmación no coinciden.', 'error');
+        return;
+    }
+
+    if (passwordForm.value.nueva.length < 8) {
+        Swal.fire('Seguridad', 'La contraseña nueva debe tener al menos 8 caracteres.', 'warning');
+        return;
+    }
+
+    isSaving.value = true;
+
+    try {
+        // 2. Llamada a la API Real
+        const token = userStore.token || localStorage.getItem('token');
+        
+        await axios.put(`${API_URL}/auth/me/password`, {
+            password_actual: passwordForm.value.actual,
+            password_nueva: passwordForm.value.nueva
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        
+        // 3. Mensaje de Éxito
+        Swal.fire({
+            title: '¡Contraseña Actualizada!',
+            text: 'Tu clave ha sido cambiada correctamente. Úsala en tu próximo inicio de sesión.',
+            icon: 'success',
+            confirmButtonColor: '#000037',
+            timer: 3000
+        });
+
+        // Limpiar el formulario
+        passwordForm.value = { actual: '', nueva: '', confirmar: '' };
+
+    } catch (error) {
+        console.error('Error cambiando contraseña:', error);
+        // Mostrar mensaje del backend si existe (ej: "La contraseña actual es incorrecta")
+        const mensajeError = error.response?.data?.detail || 'Hubo un error al actualizar la contraseña.';
+        Swal.fire('Error', mensajeError, 'error');
+    } finally {
+        isSaving.value = false;
+    }
+};
+
+const handleLogout = () => {
+    Swal.fire({
+        title: '¿Cerrar Sesión?',
+        text: "Saldrás del panel de administración.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Salir',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            userStore.clearUser();
+            router.push('/login'); // Usamos la ruta correcta a tu login
+        }
+    });
+};
 </script>

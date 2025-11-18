@@ -71,7 +71,16 @@
               />
               <Lock class="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400" :size="18" />
             </div>
-          </div>
+
+            <div class="flex justify-end mt-2">
+              <RouterLink 
+                to="/recover" 
+                class="text-sm text-purple-400 hover:text-white transition-colors duration-200"
+              >
+                ¿Olvidaste tu contraseña?
+              </RouterLink>
+            </div>
+            </div>
           
           <button 
             type="submit" 
@@ -140,18 +149,6 @@ const password = ref('');
 const isLoading = ref(false);
 const errorMessage = ref('');
 
-const loadUserFromToken = (token) => {
-    const payload = decodeJwt(token);
-    if (payload) {
-        userStore.setToken(token);
-        userStore.setUser({ 
-          id: payload.sub, 
-          email: payload.email, 
-          rol: payload.rol 
-        });
-    }
-};
-
 const loginUser = async () => {
   isLoading.value = true;
   errorMessage.value = '';
@@ -183,28 +180,24 @@ const loginUser = async () => {
 
     const data = await response.json() 
     
-    // 1. Guardar token
-    loadUserFromToken(data.access_token); 
+    userStore.setToken(data.access_token);
     
-    // 2. Leer Rol
-    const tokenPayload = decodeJwt(data.access_token)
-
-    // 3. Redirigir
-    if (tokenPayload && tokenPayload.rol === 'estudiante') {
-      console.log('Login Exitoso (Estudiante) -> /market');
-      router.push('/market'); 
-
-    } else if (tokenPayload && tokenPayload.rol === 'bibliotecario') {
-      // --- CAMBIO PRINCIPAL AQUÍ ---
-      console.log('Login Exitoso (Bibliotecario) -> /bibliotecario/dashboard');
-      router.push('/bibliotecario/dashboard'); 
-
-    } else if (tokenPayload && (tokenPayload.rol === 'admin' || tokenPayload.rol === 'revisor')) {
-      console.log('Login Exitoso (Admin) -> /dashboard');
-      router.push('/dashboard'); 
-
+    if (data.usuario) {
+        userStore.setUser(data.usuario);
     } else {
-      console.log('Rol desconocido -> /');
+        const tokenData = decodeJwt(data.access_token);
+        userStore.setUser({ email: tokenData.sub, rol: tokenData.rol });
+    }
+
+    const userRole = data.usuario?.rol || decodeJwt(data.access_token)?.rol;
+
+    if (userRole === 'estudiante') {
+      router.push('/market'); 
+    } else if (userRole === 'bibliotecario') {
+      router.push('/bibliotecario/dashboard'); 
+    } else if (userRole === 'admin' || userRole === 'revisor') {
+      router.push('/dashboard'); 
+    } else {
       router.push('/') 
     }
 

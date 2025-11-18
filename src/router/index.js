@@ -5,17 +5,18 @@ import { useUserStore } from '../stores/user';
 import MainPage from '../views/MainPage.vue';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
+import Recover from '../views/Recover.vue'; 
+import ResetPassword from '../views/ResetPassword.vue'; // <--- Importado
 
 // --- 1. IMPORTACIÓN DE VISTAS DE ESTUDIANTE ---
 import MarketStudent from '../views/student/Market_student.vue';
 import ProfileStudent from '../views/student/Profile_studen.vue';
 import InventoryStudent from '../views/student/Inventory_student.vue'; 
 import FavoriteStudent from '../views/student/Favorite_student.vue';
-import DetailStudent from '../views/student/Detail_student.vue'; // Importación directa o lazy loading abajo
+import DetailStudent from '../views/student/Detail_student.vue'; 
 
 // --- 2. IMPORTACIÓN DE VISTAS DE ADMINISTRADOR ---
 import DashboardAdmin from '../views/admin/Dashboard_admin.vue'; 
-// AÑADIDO: Importación de las nuevas vistas de Admin
 import BooksAdmin from '../views/admin/Books.vue';
 import IAAdmin from '../views/admin/IA.vue';
 import ProfileAdmin from '../views/admin/Profile_admin.vue'; 
@@ -46,6 +47,19 @@ const routes = [
     component: Register,
     meta: { title: 'Registrarse | Biblioteca' }
   },
+  // --- RUTAS DE RECUPERACIÓN ---
+  {
+    path: '/recover',
+    name: 'recover',
+    component: Recover,
+    meta: { title: 'Recuperar Contraseña | Biblioteca' }
+  },
+  {
+    path: '/reset-password', // <--- RUTA NUEVA AGREGADA
+    name: 'reset-password',
+    component: ResetPassword,
+    meta: { title: 'Restablecer Contraseña | Biblioteca' }
+  },
 
   // --- RUTAS DE ESTUDIANTE ---
   {
@@ -72,7 +86,6 @@ const routes = [
     component: FavoriteStudent,
     meta: { title: 'Mis Favoritos | Biblioteca', requiresAuth: true }
   },
-  // Detalle de libro (Lazy loading opcional mantenido como en tu ejemplo)
   {
     path: '/libro/:id', 
     name: 'BookDetail',
@@ -92,7 +105,6 @@ const routes = [
       requiresAdmin: true
     }
   },
-  // AÑADIDO: Rutas de Libros, IA y Perfil para Admin
   {
     path: '/admin/libros',
     name: 'Books_admin',
@@ -173,7 +185,8 @@ router.beforeEach((to, from, next) => {
   const userRole = userStore.user?.rol;   
   
   // Rutas públicas que queremos proteger de usuarios logueados
-  const publicRoutes = ['home', 'login', 'register'];
+  // AGREGADO: 'reset-password' a la lista
+  const publicRoutes = ['home', 'login', 'register', 'recover', 'reset-password'];
 
   // LÓGICA DE REDIRECCIÓN: Si está logueado y va a una ruta pública, lo redirigimos
   if (isLoggedIn && publicRoutes.includes(to.name)) {
