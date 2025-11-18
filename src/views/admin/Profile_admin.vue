@@ -36,12 +36,14 @@
                               <div class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white rounded-full" title="Online"></div>
                           </div>
                           
-                          <h2 class="text-xl font-bold text-gray-900">{{ userData.nombres || 'Administrador' }}</h2>
+                          <h2 class="text-xl font-bold text-gray-900">
+                             {{ userData.nombres || 'Administrador' }} {{ userData.apellidos || '' }}
+                          </h2>
                           <p class="text-sm text-gray-500 mb-4 font-medium">{{ userData.email }}</p>
                           
                           <div class="flex justify-center gap-2 mb-6">
                               <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#000037] border border-blue-100 uppercase tracking-wide">
-                                  {{ userData.rol || 'Admin' }}
+                                  {{ userData.rol || 'ADMIN' }}
                               </span>
                           </div>
                       </div>
@@ -56,7 +58,7 @@
                           </div>
                           <div>
                               <h3 class="text-lg font-bold text-gray-900">Seguridad y Acceso</h3>
-                              <p class="text-xs text-gray-500">Actualiza tu contraseña periódicamente para mantener la seguridad.</p>
+                              <p class="text-xs text-gray-500">Información de tu credencial principal.</p>
                           </div>
                       </div>
 
@@ -70,7 +72,7 @@
                                           <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                       </div>
                                       <input 
-                                          :value="userData.username" 
+                                          :value="userData.email" 
                                           disabled 
                                           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-600 font-medium cursor-not-allowed focus:ring-0 focus:border-gray-200 transition-colors"
                                       />
@@ -87,7 +89,7 @@
                                           <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
                                       </div>
                                       <input 
-                                          :value="userData.id || 'ADM-001'" 
+                                          :value="userData.id || '---'" 
                                           disabled 
                                           class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-600 font-mono cursor-not-allowed focus:ring-0 focus:border-gray-200"
                                       />
@@ -149,7 +151,9 @@
   const isSidebarExpanded = ref(false);
   const isSaving = ref(false);
 
-  // Datos del Store (Solo lectura para el perfil)
+  // Accedemos al usuario desde el Store. 
+  // NOTA: Asegúrate de que al hacer login, tu backend esté devolviendo el objeto 'usuario'
+  // y que el store lo esté guardando correctamente.
   const userData = computed(() => userStore.user || {});
   
   const userInitial = computed(() => {
@@ -160,7 +164,7 @@
 
   const updatePassword = async () => {
       isSaving.value = true;
-      // Simulación de API
+      // Simulación de espera de red
       await new Promise(resolve => setTimeout(resolve, 1000));
       isSaving.value = false;
       
@@ -168,7 +172,7 @@
           title: '¡Todo listo!',
           text: 'Tu contraseña se ha actualizado correctamente.',
           icon: 'success',
-          confirmButtonColor: '#000037', // Color del botón del alert también ajustado
+          confirmButtonColor: '#000037', 
           confirmButtonText: 'Entendido',
           timer: 2500
       });
