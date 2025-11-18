@@ -55,8 +55,7 @@
                   <div class="flex items-center gap-3">
                     <img 
                         v-if="libro.portada_uri" 
-                        :src="libro.portada_uri" 
-                        alt="Portada del libro" 
+                        :src="resolveUrl(libro.portada_uri)" alt="Portada del libro" 
                         class="w-10 h-14 object-cover rounded-md shadow-sm border border-slate-100"
                     >
                     <div v-else class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
@@ -180,7 +179,7 @@
 
                     <div v-if="form.portada_uri" class="flex items-center gap-2 text-sm text-green-600">
                         <CheckCircle :size="16" class="text-green-500" />
-                        Portada cargada.
+                        Portada cargada / seleccionada.
                     </div>
                     <div v-if="uploading" class="flex items-center gap-2 text-sm text-indigo-600">
                         <Loader2 :size="16" class="animate-spin" />
@@ -191,9 +190,10 @@
                 
                 <div v-if="form.portada_uri" class="mt-4">
                     <p class="text-xs font-bold text-slate-500 mb-2">Vista Previa:</p>
-                    <img :src="form.portada_uri" alt="Vista Previa" class="h-24 w-auto object-contain border border-slate-200 rounded-md">
+                    <img :src="resolveUrl(form.portada_uri)" alt="Vista Previa" class="h-24 w-auto object-contain border border-slate-200 rounded-md">
                 </div>
               </div>
+
               <div class="group col-span-2">
                 <label class="label-form">Cantidad de Ejemplares <span class="text-red-500">*</span></label>
                 <input 
@@ -219,6 +219,7 @@
           </form>
         </div>
       </div>
+
       <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-fade-in-up">
             
@@ -247,7 +248,7 @@
 import { ref, onMounted } from 'vue';
 import Sidebar_librarian from './Sidebar_librarian.vue';
 import { useUserStore } from '@/stores/user';
-import { Plus, Search, Book, Edit, Trash2, Loader2, X, Upload, CheckCircle } from 'lucide-vue-next'; // ✅ AGREGAR Upload y CheckCircle
+import { Plus, Search, Book, Edit, Trash2, Loader2, X, Upload, CheckCircle } from 'lucide-vue-next';
 
 const userStore = useUserStore();
 const libros = ref([]);
@@ -261,8 +262,8 @@ const currentId = ref(null);
 const showDeleteConfirm = ref(false);
 const bookToDeleteId = ref(null); 
 const fileInput = ref(null); 
-const fileToUpload = ref(null); // ✅ Archivo seleccionado por el usuario
-const uploading = ref(false); // ✅ Estado de subida de archivo
+const fileToUpload = ref(null); 
+const uploading = ref(false); 
 
 
 // Modelo del formulario
@@ -282,6 +283,26 @@ const form = ref({
 
 const API_URL = import.meta.env.VITE_APP_API_URL;
 
+// OBTENER LA BASE DE LA URL SIN EL SLASH FINAL
+const API_URL_BASE = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL; 
+
+// ✅ FUNCIÓN DE AYUDA PARA CONSTRUIR URLS ABSOLUTAS
+const resolveUrl = (relativeUri) => {
+    // Si la URI relativa es null o vacía, devolvemos null
+    if (!relativeUri) return null;
+    
+    // Si es una URL blob (vista previa local), la devolvemos tal cual
+    if (relativeUri.startsWith('blob:')) return relativeUri;
+
+    // El constructor URL() maneja la concatenación de forma segura
+    try {
+        return new URL(relativeUri, API_URL_BASE).href;
+    } catch (e) {
+        const cleanedRelativeUri = relativeUri.startsWith('/') ? relativeUri.substring(1) : relativeUri;
+        return API_URL_BASE + '/' + cleanedRelativeUri;
+    }
+};
+
 // --- Funciones de Subida de Archivo ---
 const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -289,14 +310,15 @@ const handleFileChange = (event) => {
         if (!file.type.startsWith('image/')) {
             alert('Solo se permiten archivos de imagen.');
             fileToUpload.value = null;
-            form.value.portada_uri = '';
+            // Si no es imagen, dejamos la URI como estaba (si editamos) o vacía
+            if (!isEditing.value) form.value.portada_uri = '';
             return;
         }
         fileToUpload.value = file;
-        // Reiniciar URI si se selecciona un nuevo archivo (solo mantenemos la URI si estamos editando y no subimos nada)
-        if (!isEditing.value) {
-            form.value.portada_uri = ''; 
-        }
+        
+        // ✅ MEJORA: Vista previa instantánea usando URL.createObjectURL
+        // Esto permite ver la imagen inmediatamente sin necesidad de subirla primero
+        form.value.portada_uri = URL.createObjectURL(file);
     }
 };
 
@@ -309,7 +331,7 @@ const uploadFile = async () => {
     formData.append('file', fileToUpload.value);
 
     try {
-        const response = await fetch(`${API_URL}/upload/cover`, { // ✅ ENDPOINT DE SUBIDA
+        const response = await fetch(`${API_URL}/upload/cover`, { 
             method: 'POST',
             headers: {
                 // IMPORTANTÍSIMO: NO establecer 'Content-Type', FormData lo hace
@@ -324,7 +346,8 @@ const uploadFile = async () => {
         }
 
         const result = await response.json();
-        form.value.portada_uri = result.url; // ✅ Guardar la URL devuelta por el backend
+        // Sobrescribimos la URL blob temporal con la URL real del servidor
+        form.value.portada_uri = result.url; 
         return true;
 
     } catch (error) {
@@ -340,10 +363,43 @@ const uploadFile = async () => {
 
 // --- 1. CARGAR LIBROS DESDE LA BASE DE DATOS ---
 const fetchLibros = async () => {
-// ... (mismo código)
+    loading.value = true;
+    
+    const token = userStore.token;
+    if (!token) {
+        console.error("No hay token de autenticación. Inicie sesión.");
+        loading.value = false;
+        return; 
+    }
+
+    try {
+        // ✅ MEJORA: Agregamos timestamp para evitar caché del navegador y ver las imágenes nuevas
+        const timestamp = new Date().getTime();
+        const response = await fetch(`${API_URL}/libros/?t=${timestamp}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || `Error al obtener libros: ${response.status}`);
+        }
+
+        const data = await response.json();
+        libros.value = data; 
+        
+    } catch (error) {
+        console.error('Error al cargar libros:', error);
+        alert('Error al obtener libros: ' + error.message);
+    } finally {
+        loading.value = false; 
+    }
 };
 
-// --- 2. GESTIONAR ENVÍO (CREAR / EDITAR) - MODIFICADO CON LÓGICA DE SUBIDA ---
+// --- 2. GESTIONAR ENVÍO (CREAR / EDITAR) ---
 const handleSubmit = async () => {
     
     // 1. Validar y subir archivo si existe
@@ -369,8 +425,12 @@ const handleSubmit = async () => {
         }
         
         // Aseguramos que si no se subió nada y el campo está vacío, se envíe null.
-        if (payload.portada_uri === '') {
-             payload.portada_uri = null;
+        if (payload.portada_uri === '' || payload.portada_uri?.startsWith('blob:')) {
+            // Si sigue siendo un blob (algo falló en upload) o está vacío, mandamos lo que corresponda
+            // En general uploadFile ya habrá reemplazado el blob con la url del servidor.
+             if (!payload.portada_uri || payload.portada_uri.startsWith('blob:')) {
+                 payload.portada_uri = null; 
+             }
         }
 
         const response = await fetch(url, {
@@ -400,16 +460,42 @@ const handleSubmit = async () => {
 };
 
 // --- ELIMINACIÓN ---
-const deleteBook = async (id) => {
-// ... (mismo código)
+const deleteBook = (id) => {
+    bookToDeleteId.value = id;
+    showDeleteConfirm.value = true;
 };
 
 const confirmDelete = async () => {
-// ... (mismo código)
+    showDeleteConfirm.value = false;
+    if (!bookToDeleteId.value) return;
+
+    try {
+        const response = await fetch(`${API_URL}/libros/${bookToDeleteId.value}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${userStore.token}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(response.status === 404 ? 'Libro no encontrado.' : 'No se pudo eliminar el libro (puede tener alquileres activos).');
+        }
+
+        await fetchLibros(); 
+        alert('Libro eliminado correctamente.');
+
+    } catch (error) {
+        console.error('Error al eliminar libro:', error);
+        alert('Operación fallida: ' + error.message);
+    } finally {
+        bookToDeleteId.value = null;
+    }
 };
 
 const cancelDelete = () => {
-// ... (mismo código)
+    showDeleteConfirm.value = false;
+    bookToDeleteId.value = null;
 };
 
 // --- Utilidades del Modal de Edición/Creación ---
@@ -428,9 +514,9 @@ const openCreateModal = () => {
 const openEditModal = (libro) => {
   isEditing.value = true;
   currentId.value = libro.id;
-  // Copia profunda, manteniendo portada_uri actual para previsualización
+  // Copia profunda
   form.value = { ...libro }; 
-  fileToUpload.value = null; // Resetear archivo para que no se suba un archivo antiguo
+  fileToUpload.value = null; 
   showModal.value = true;
 };
 
@@ -442,7 +528,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Estilos no modificados */
 .label-form {
   @apply block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2;
 }
