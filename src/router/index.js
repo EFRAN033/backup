@@ -90,7 +90,6 @@ const routes = [
   },
 
   // --- RUTAS DE BIBLIOTECARIO ---
-  // NOTA: Los 'name' coinciden con los usados en router.push() del Dashboard
   {
     path: '/bibliotecario/dashboard',
     name: 'Dashboard_librarian',
@@ -103,7 +102,7 @@ const routes = [
   },
   {
     path: '/bibliotecario/gestion-libros',
-    name: 'BookManagement_librarian',
+    name: 'Books_librarian', // <--- ¡NOMBRE DE RUTA CORREGIDO!
     component: BookManagementLibrarian,
     meta: { title: 'Gestión Libros | Bibliotecario', requiresAuth: true, requiresAdmin: true }
   },
@@ -151,6 +150,25 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = userStore.isLoggedIn; 
   const userRole = userStore.user?.rol;   
   
+  // Rutas públicas que queremos proteger de usuarios logueados
+  const publicRoutes = ['home', 'login', 'register'];
+
+  // LÓGICA DE REDIRECCIÓN: Si está logueado y va a una ruta pública, lo redirigimos
+  if (isLoggedIn && publicRoutes.includes(to.name)) {
+    
+    let redirectRouteName = 'market'; 
+    
+    if (userRole === 'admin') {
+      redirectRouteName = 'dashboard';
+    } else if (userRole === 'bibliotecario') {
+      redirectRouteName = 'Dashboard_librarian';
+    } 
+    
+    if (to.name !== redirectRouteName) {
+        return next({ name: redirectRouteName });
+    }
+  }
+
   // 2. Si la ruta requiere auth y el usuario NO está logueado -> Redirigir a Login
   if (to.meta.requiresAuth && !isLoggedIn) {
     return next({ name: 'login' });
@@ -160,9 +178,9 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAdmin) {
     const privilegedRoles = ['admin', 'bibliotecario', 'revisor'];
     
-    // Si está logueado pero NO tiene el rol adecuado, redirigir al home o market
+    // Si está logueado pero NO tiene el rol adecuado, redirigir al market
     if (isLoggedIn && !privilegedRoles.includes(userRole)) {
-      return next({ name: 'market' }); // O 'home'
+      return next({ name: 'market' }); 
     }
   }
   
